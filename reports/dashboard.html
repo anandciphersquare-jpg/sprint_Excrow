@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Execution Report - SprintNXT Escrow</title>
+<style>
+:root{
+  color-scheme: dark;
+  --plane:#0b1220; --surface:#161f2e; --surface-2:#1c2739; --raise:#223047;
+  --ink:#f1f5f9; --ink-2:#a9b6c9; --muted:#6f7f96;
+  --hair:rgba(255,255,255,.09); --hair-2:rgba(255,255,255,.16);
+  /* status - reserved, never used for a non-status value */
+  --pass:#0ca30c; --fail:#d03b3b; --skip:#fab219; --blocked:#9085e9; --xfail:#8b95a7;
+  /* neutral metric accents - deliberately NOT status hues */
+  --info:#3987e5; --time:#d55181; --mod:#199e70;
+  --r:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 56px}
+a{color:#6aa9f0;text-decoration:none}
+
+/* ---------- header ---------- */
+.hdr{background:linear-gradient(135deg,#152238 0%,#0f1a2b 60%,#122033 100%);
+  border-bottom:1px solid var(--hair);margin-bottom:26px}
+.hdr-in{max-width:1280px;margin:0 auto;padding:26px 20px 24px;
+  display:flex;gap:24px;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0 0 6px;font-size:26px;letter-spacing:-.4px}
+.spec{font-size:13px;color:#6aa9f0;font-family:ui-monospace,Consolas,monospace}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);
+  border:1px solid var(--hair);border-radius:999px;padding:5px 12px;font-size:11.5px}
+.chip b{color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-size:10px}
+.meta{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:12px 16px;min-width:290px;align-self:flex-start}
+.meta div{display:flex;justify-content:space-between;gap:24px;padding:4px 0;font-size:12px}
+.meta span:first-child{color:var(--muted);letter-spacing:.6px;font-size:10px;
+  text-transform:uppercase;font-weight:700;padding-top:2px}
+.meta span:last-child{font-variant-numeric:tabular-nums}
+.meta .hl{color:var(--pass);font-weight:700}
+
+/* ---------- banner ---------- */
+.banner{border-radius:var(--r);padding:13px 18px;margin-bottom:22px;font-size:13px;
+  display:flex;gap:11px;align-items:flex-start;line-height:1.55}
+.banner.warn{background:rgba(250,178,25,.10);border:1px solid rgba(250,178,25,.42);color:#f6ddab}
+.banner.info{background:rgba(57,135,229,.10);border:1px solid rgba(57,135,229,.34);color:#bcd6f6}
+.banner b{color:#fff}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--hair);border-left:3px solid var(--c,var(--info));
+  border-radius:var(--r);padding:15px 16px;display:flex;align-items:center;gap:13px}
+.tile .ic{width:36px;height:36px;flex:0 0 36px;border-radius:9px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c,var(--info)) 16%,transparent);font-size:17px}
+.tile .v{font-size:25px;font-weight:700;color:var(--c,var(--info));line-height:1.1}
+.tile .l{font-size:10px;letter-spacing:.85px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin-top:3px}
+
+/* ---------- panels ---------- */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-bottom:22px}
+.panel{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:16px 18px 18px;min-width:0}
+.panel h2{margin:0;font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;padding-bottom:11px;border-bottom:1px solid var(--hair)}
+.plot{padding-top:16px;position:relative;overflow-x:auto}
+.hero{text-align:center;padding:30px 0 18px}
+.hero .n{font-size:42px;font-weight:700;line-height:1}
+.hero .c{font-size:12px;color:var(--muted);margin-top:6px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding-top:14px;margin-top:12px;
+  border-top:1px solid var(--hair);font-size:12px;color:var(--ink-2)}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
+.empty{color:var(--muted);font-size:12.5px;padding:34px 0;text-align:center}
+svg{display:block;max-width:100%}
+/* A chart that must stay legible scrolls inside its card rather than
+   shrinking its axis labels into unreadability. */
+.plot svg.wide{max-width:none}
+svg text{font:11px system-ui,-apple-system,"Segoe UI",sans-serif}
+.tick{fill:var(--muted);font-variant-numeric:tabular-nums}
+.grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+.axis{stroke:rgba(255,255,255,.16);stroke-width:1}
+.vlab{fill:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.mark{transition:opacity .12s}
+.plot:hover .mark{opacity:.5}
+.plot .mark:hover{opacity:1}
+
+/* ---------- tooltip ---------- */
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:#0a1120;border:1px solid var(--hair-2);border-radius:9px;padding:9px 12px;
+  font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:270px}
+#tip .t{font-weight:700;margin-bottom:5px}
+#tip .r{display:flex;justify-content:space-between;gap:18px;color:var(--ink-2)}
+#tip .r b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- controls ---------- */
+.controls{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:13px 15px;display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search{flex:1 1 260px;position:relative;min-width:200px}
+.search input{width:100%;background:var(--plane);border:1px solid var(--hair);border-radius:9px;
+  padding:9px 12px 9px 34px;color:var(--ink);font-size:13px}
+.search::before{content:"⌕";position:absolute;left:12px;top:7px;color:var(--muted);font-size:15px}
+select,.btn{background:var(--plane);border:1px solid var(--hair);border-radius:9px;
+  padding:9px 12px;color:var(--ink);font-size:12.5px;cursor:pointer}
+.count{color:var(--muted);font-size:12px;margin-left:auto}
+.sorts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;
+  font-size:11px;color:var(--muted)}
+.sorts b{letter-spacing:.8px;text-transform:uppercase;font-weight:700}
+.sb{background:var(--surface-2);border:1px solid var(--hair);border-radius:999px;
+  padding:5px 13px;font-size:12px;color:var(--ink-2);cursor:pointer}
+.sb[aria-pressed=true]{background:var(--info);border-color:var(--info);color:#fff;font-weight:600}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{
+  outline:2px solid var(--info);outline-offset:2px}
+
+/* ---------- module groups ---------- */
+.grp{background:var(--surface);border:1px solid var(--hair);border-left:3px solid var(--gc,var(--pass));
+  border-radius:var(--r);margin-bottom:11px;overflow:hidden}
+.grp>summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;
+  gap:11px;flex-wrap:wrap}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary::before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+.grp[open]>summary::before{transform:rotate(90deg)}
+.gname{font-weight:700;font-size:14px}
+.badges{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.b{border-radius:999px;padding:3px 10px;font-size:11px;border:1px solid var(--hair);
+  background:var(--surface-2);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.b.p{color:var(--pass);border-color:color-mix(in srgb,var(--pass) 45%,transparent)}
+.b.f{color:var(--fail);border-color:color-mix(in srgb,var(--fail) 45%,transparent)}
+
+/* ---------- rows ---------- */
+.row{display:flex;align-items:center;gap:11px;padding:11px 16px;border-top:1px solid var(--hair);
+  flex-wrap:wrap}
+.row:hover{background:var(--surface-2)}
+.tcid{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-2);
+  background:var(--plane);border:1px solid var(--hair);border-radius:6px;padding:3px 8px;flex:0 0 auto}
+.tname{flex:1 1 300px;font-size:13px;min-width:220px}
+.tag{font-size:11px;border-radius:999px;padding:3px 10px;background:var(--surface-2);
+  border:1px solid var(--hair);color:var(--ink-2);flex:0 0 auto}
+.dur{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.st{font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;flex:0 0 auto;
+  display:inline-flex;align-items:center;gap:5px;letter-spacing:.4px}
+.st.passed  {color:var(--pass);   background:color-mix(in srgb,var(--pass) 15%,transparent);   border:1px solid color-mix(in srgb,var(--pass) 45%,transparent)}
+.st.failed  {color:var(--fail);   background:color-mix(in srgb,var(--fail) 15%,transparent);   border:1px solid color-mix(in srgb,var(--fail) 45%,transparent)}
+.st.skipped {color:var(--skip);   background:color-mix(in srgb,var(--skip) 15%,transparent);   border:1px solid color-mix(in srgb,var(--skip) 45%,transparent)}
+.st.blocked {color:var(--blocked);background:color-mix(in srgb,var(--blocked) 15%,transparent);border:1px solid color-mix(in srgb,var(--blocked) 45%,transparent)}
+.st.xfailed,.st.xpassed,.st.not_run{color:var(--xfail);background:rgba(139,149,167,.13);
+  border:1px solid rgba(139,149,167,.36)}
+.err{margin-top:9px;background:var(--plane);border:1px solid var(--hair);
+  border-left:3px solid var(--fail);border-radius:8px;padding:10px 13px;
+  font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:#f0b8b8;
+  white-space:pre-wrap;word-break:break-word;max-height:230px;overflow:auto}
+
+/* ---------- plain-English failure explanation ---------- */
+.why{flex:1 1 100%;margin-top:10px;background:var(--plane);border:1px solid var(--hair);
+  border-radius:10px;padding:0;overflow:hidden}
+.why-hd{display:flex;align-items:center;gap:9px;padding:10px 14px;
+  border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.own{font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;letter-spacing:.3px}
+.own.product    {color:var(--fail);   background:color-mix(in srgb,var(--fail) 15%,transparent);   border:1px solid color-mix(in srgb,var(--fail) 45%,transparent)}
+.own.test       {color:var(--skip);   background:color-mix(in srgb,var(--skip) 15%,transparent);   border:1px solid color-mix(in srgb,var(--skip) 45%,transparent)}
+.own.environment{color:var(--info);   background:color-mix(in srgb,var(--info) 15%,transparent);   border:1px solid color-mix(in srgb,var(--info) 42%,transparent)}
+.own.unknown    {color:var(--xfail);  background:rgba(139,149,167,.14);border:1px solid rgba(139,149,167,.4)}
+.own-note{font-size:11.5px;color:var(--muted)}
+.why-bd{padding:13px 15px 15px;font-size:13px;line-height:1.62}
+.why h4{margin:15px 0 6px;font-size:10px;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--muted);font-weight:700}
+.why h4:first-child{margin-top:0}
+.why p{margin:0;color:var(--ink)}
+.why .lead{font-size:14px;font-weight:600;color:#fff;line-height:1.5}
+.why ol,.why ul{margin:0;padding-left:20px;color:var(--ink-2)}
+.why li{margin:4px 0}
+.why .fields{list-style:none;padding:0;display:flex;flex-direction:column;gap:5px}
+.why .fields li{background:var(--surface-2);border:1px solid var(--hair);border-radius:7px;
+  padding:6px 11px;font-size:12.5px;color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+.why details{margin-top:14px;border-top:1px solid var(--hair);padding-top:11px}
+.why summary{cursor:pointer;font-size:11.5px;color:var(--muted);list-style:none}
+.why summary::-webkit-details-marker{display:none}
+.why summary::before{content:"▸ ";}
+.why details[open] summary::before{content:"▾ ";}
+.why .err{margin-top:9px}
+
+/* ---------- table view ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--hair)}
+th{color:var(--muted);font-size:10px;letter-spacing:.7px;text-transform:uppercase}
+td{font-variant-numeric:tabular-nums}
+#tableview{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:6px 10px 10px;margin-bottom:14px}
+.foot{color:var(--muted);font-size:11.5px;text-align:center;margin-top:26px;line-height:1.7}
+[hidden]{display:none !important}
+
+/* print / forced-colors: hatching so status never rides on hue alone */
+@media print,(forced-colors:active){
+  body{background:#fff;color:#000}
+  .panel,.tile,.grp,.controls,#tableview{background:#fff;border:1px solid #999}
+  .mark[data-status=failed]{fill:url(#hatchA)}
+  .mark[data-status=skipped]{fill:url(#hatchB)}
+  #tip,.sorts{display:none}
+}
+</style></head><body>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <pattern id="hatchA" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+    <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#000" stroke-width="2.4"/></pattern>
+  <pattern id="hatchB" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(135)">
+    <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#000" stroke-width="2.4"/></pattern>
+</defs></svg>
+
+<header class="hdr"><div class="hdr-in">
+  <div>
+    <h1>Test Execution Report</h1>
+    <div class="spec" id="specName"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="meta" id="metaBox"></div>
+</div></header>
+
+<div class="wrap">
+  <div id="banners"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="panels">
+    <section class="panel"><h2>Pass / Fail Distribution</h2><div class="plot" id="donut"></div></section>
+    <section class="panel"><h2>Module-wise Results</h2><div class="plot" id="bars"></div></section>
+    <section class="panel"><h2>Failure Categories</h2><div class="plot" id="cats"></div></section>
+  </div>
+
+  <div class="controls">
+    <div class="search"><input id="q" type="search" placeholder="Search tests, IDs, features…" aria-label="Search tests"></div>
+    <select id="fStatus" aria-label="Filter by status"><option value="">All Statuses</option></select>
+    <select id="fModule" aria-label="Filter by module"><option value="">All Modules</option></select>
+    <select id="fType"   aria-label="Filter by type"><option value="">All Types</option></select>
+    <button class="btn" id="reset">Reset</button>
+    <button class="btn" id="toggleTable" aria-pressed="false">Table view</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="sorts"><b>Sort by:</b>
+    <button class="sb" data-sort="module"   aria-pressed="true">Module</button>
+    <button class="sb" data-sort="status"   aria-pressed="false">Status</button>
+    <button class="sb" data-sort="duration" aria-pressed="false">Duration</button>
+    <button class="sb" data-sort="name"     aria-pressed="false">Name</button>
+  </div>
+
+  <div id="tableview" hidden></div>
+  <div id="list"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+const D = {"meta": {"suite": "partner/tests/test_mail_parsing_live_bodies.py partner/tests/test_credential_store.py -p no:cacheprovider -q", "module_label": "SprintNXT Escrow - Admin & Partner", "browser": "Chromium", "env": "UAT", "by": "QA Team", "started": "23 Sep 2026, 1:39:05 PM", "ended": "23 Sep 2026, 1:39:06 PM", "duration_s": 0.972004, "generated": "23 Sep 2026, 1:39:06 PM", "note": "", "demo": false}, "counts": {"passed": 26, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0}, "executed": 26, "total": 26, "passRate": 100.0, "modules": [{"name": "test_credential_store", "order": 99, "passed": 21, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 21, "duration": 0.14894019986968488}, {"name": "test_mail_parsing_live_bodies", "order": 99, "passed": 5, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 5, "duration": 0.011309800000162795}], "failureCategories": [], "tests": [{"tc_id": "TC-001", "nodeid": "partner/tests/test_credential_store.py::test_a_bare_code_is_taken_only_with_otp_wording", "module": "test_credential_store", "order": 99, "name": "A bare code is taken only with otp wording", "type": "Functional", "status": "passed", "duration": 0.0019100999925285578, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-002", "nodeid": "partner/tests/test_credential_store.py::test_a_corrupt_store_degrades_to_needing_the_mailbox", "module": "test_credential_store", "order": 99, "name": "A corrupt store degrades to needing the mailbox", "type": "Negative", "status": "passed", "duration": 0.010630400007357821, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-003", "nodeid": "partner/tests/test_credential_store.py::test_a_labelled_code_is_read[4821 is your OTP for SprintNXT login.-4821]", "module": "test_credential_store", "order": 99, "name": "A labelled code is read [4821 is your OTP for SprintNXT login.-4821]", "type": "Functional", "status": "passed", "duration": 0.0021334000339265913, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-004", "nodeid": "partner/tests/test_credential_store.py::test_a_labelled_code_is_read[Use security code 4821 to sign in.-4821]", "module": "test_credential_store", "order": 99, "name": "A labelled code is read [Use security code 4821 to sign in.-4821]", "type": "Functional", "status": "passed", "duration": 0.0023625999747309834, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-005", "nodeid": "partner/tests/test_credential_store.py::test_a_labelled_code_is_read[Verification code - 4821-4821]", "module": "test_credential_store", "order": 99, "name": "A labelled code is read [Verification code - 4821-4821]", "type": "Functional", "status": "passed", "duration": 0.0015285999688785523, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-006", "nodeid": "partner/tests/test_credential_store.py::test_a_labelled_code_is_read[Your OTP is 4821 . It expires in 10 minutes.-4821]", "module": "test_credential_store", "order": 99, "name": "A labelled code is read [Your OTP is 4821 . It expires in 10 minutes.-4821]", "type": "Functional", "status": "passed", "duration": 0.002620400016894564, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-007", "nodeid": "partner/tests/test_credential_store.py::test_a_labelled_code_is_read[Your one-time password: 4821-4821]", "module": "test_credential_store", "order": 99, "name": "A labelled code is read [Your one-time password: 4821-4821]", "type": "Functional", "status": "passed", "duration": 0.0015409999759867787, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-008", "nodeid": "partner/tests/test_credential_store.py::test_a_mail_that_is_not_an_otp_mail_yields_nothing", "module": "test_credential_store", "order": 99, "name": "A mail that is not an otp mail yields nothing", "type": "Negative", "status": "passed", "duration": 0.00197060001664795, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-009", "nodeid": "partner/tests/test_credential_store.py::test_an_empty_body_is_not_an_error", "module": "test_credential_store", "order": 99, "name": "An empty body is not an error", "type": "Negative", "status": "passed", "duration": 0.002350500028114766, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-010", "nodeid": "partner/tests/test_credential_store.py::test_an_empty_password_is_refused", "module": "test_credential_store", "order": 99, "name": "An empty password is refused", "type": "Negative", "status": "passed", "duration": 0.005641600000672042, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-011", "nodeid": "partner/tests/test_credential_store.py::test_an_escrow_id_is_not_mistaken_for_a_code", "module": "test_credential_store", "order": 99, "name": "An escrow id is not mistaken for a code", "type": "Negative", "status": "passed", "duration": 0.001650799997150898, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-012", "nodeid": "partner/tests/test_credential_store.py::test_an_unknown_partner_still_needs_the_mailbox", "module": "test_credential_store", "order": 99, "name": "An unknown partner still needs the mailbox", "type": "Functional", "status": "passed", "duration": 0.013044399966020137, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-013", "nodeid": "partner/tests/test_credential_store.py::test_credentials_survive_a_later_escrow_for_the_same_partner", "module": "test_credential_store", "order": 99, "name": "Credentials survive a later escrow for the same partner", "type": "Functional", "status": "passed", "duration": 0.01553009997587651, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-014", "nodeid": "partner/tests/test_credential_store.py::test_forget_sends_a_partner_back_to_the_mailbox", "module": "test_credential_store", "order": 99, "name": "Forget sends a partner back to the mailbox", "type": "Functional", "status": "passed", "duration": 0.015886099950876087, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-015", "nodeid": "partner/tests/test_credential_store.py::test_login_id_prefers_the_user_id_from_the_mail", "module": "test_credential_store", "order": 99, "name": "Login id prefers the user id from the mail", "type": "Functional", "status": "passed", "duration": 0.0015241000219248235, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-016", "nodeid": "partner/tests/test_credential_store.py::test_partners_are_kept_apart", "module": "test_credential_store", "order": 99, "name": "Partners are kept apart", "type": "Functional", "status": "passed", "duration": 0.014958499989006668, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-017", "nodeid": "partner/tests/test_credential_store.py::test_the_address_is_matched_regardless_of_case", "module": "test_credential_store", "order": 99, "name": "The address is matched regardless of case", "type": "Functional", "status": "passed", "duration": 0.008649399969726801, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-018", "nodeid": "partner/tests/test_credential_store.py::test_the_password_change_is_what_ends_it", "module": "test_credential_store", "order": 99, "name": "The password change is what ends it", "type": "Functional", "status": "passed", "duration": 0.013848799979314208, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-019", "nodeid": "partner/tests/test_credential_store.py::test_the_right_length_is_chosen_when_both_appear", "module": "test_credential_store", "order": 99, "name": "The right length is chosen when both appear", "type": "Functional", "status": "passed", "duration": 0.0014161999861244112, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-020", "nodeid": "partner/tests/test_credential_store.py::test_the_summary_never_carries_a_password", "module": "test_credential_store", "order": 99, "name": "The summary never carries a password", "type": "Security", "status": "passed", "duration": 0.019912200019462034, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-021", "nodeid": "partner/tests/test_credential_store.py::test_the_welcome_mail_alone_does_not_end_the_mailbox_requirement", "module": "test_credential_store", "order": 99, "name": "The welcome mail alone does not end the mailbox requirement", "type": "Functional", "status": "passed", "duration": 0.00983039999846369, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-022", "nodeid": "partner/tests/test_mail_parsing_live_bodies.py::test_a_label_on_its_own_line_still_works", "module": "test_mail_parsing_live_bodies", "order": 99, "name": "A label on its own line still works", "type": "Functional", "status": "passed", "duration": 0.0010760999866761267, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-023", "nodeid": "partner/tests/test_mail_parsing_live_bodies.py::test_a_real_temporary_password_is_still_read", "module": "test_mail_parsing_live_bodies", "order": 99, "name": "A real temporary password is still read", "type": "Functional", "status": "passed", "duration": 0.0011517000093590468, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-024", "nodeid": "partner/tests/test_mail_parsing_live_bodies.py::test_the_copyright_year_is_not_mistaken_for_a_four_digit_code", "module": "test_mail_parsing_live_bodies", "order": 99, "name": "The copyright year is not mistaken for a four digit code", "type": "Negative", "status": "passed", "duration": 0.0012237999762874097, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-025", "nodeid": "partner/tests/test_mail_parsing_live_bodies.py::test_the_live_otp_mail_yields_its_code", "module": "test_mail_parsing_live_bodies", "order": 99, "name": "The live otp mail yields its code", "type": "Functional", "status": "passed", "duration": 0.005284900049446151, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-026", "nodeid": "partner/tests/test_mail_parsing_live_bodies.py::test_the_security_footer_is_not_read_as_a_temporary_password", "module": "test_mail_parsing_live_bodies", "order": 99, "name": "The security footer is not read as a temporary password", "type": "Negative", "status": "passed", "duration": 0.0025732999783940613, "error": "", "error_category": "", "retries": 0, "explain": {}}]};
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const C = {passed:"var(--pass)",failed:"var(--fail)",skipped:"var(--skip)",blocked:"var(--blocked)",
+           xfailed:"var(--xfail)",xpassed:"var(--xfail)",not_run:"var(--xfail)"};
+const ICON = {passed:"✓",failed:"✕",skipped:"⏭",blocked:"⊘",xfailed:"~",xpassed:"!",not_run:"·"};
+const LABEL= {passed:"PASS",failed:"FAIL",skipped:"SKIP",blocked:"BLOCKED",
+              xfailed:"XFAIL",xpassed:"XPASS",not_run:"NOT RUN"};
+const dur = s => s<1 ? Math.round(s*1000)+"ms"
+                : s<60 ? (s<10?s.toFixed(1):Math.round(s))+"s"
+                : Math.floor(s/60)+"m "+String(Math.round(s%60)).padStart(2,"0")+"s";
+
+/* ---------- header ---------- */
+const M = D.meta;
+specName.textContent = M.suite;
+chips.innerHTML = [["Module",M.module_label],["Browser",M.browser],["Env",M.env],["By",M.by]]
+  .map(([k,v])=>`<span class="chip"><b>${esc(k)}</b>${esc(v)}</span>`).join("");
+metaBox.innerHTML = [["Started",M.started],["Ended",M.ended],
+  ["Duration",`<span class="hl">${dur(M.duration_s)}</span>`],["Generated",M.generated]]
+  .map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join("");
+
+/* ---------- banners ---------- */
+const bn=[];
+if(M.demo) bn.push(`<div class="banner warn"><span>⚠</span><div><b>LAYOUT PREVIEW - SAMPLE DATA. This is NOT a real test run.</b><br>
+  Test names, IDs and module structure are the suite's genuine 87 tests, but every status, duration and error is placeholder
+  content generated to show the layout populated. Do not quote any number on this page. The real report is
+  <code>reports/dashboard.html</code>, written by an actual pytest run.</div></div>`);
+if(M.note) bn.push(`<div class="banner info"><span>ℹ</span><div>${M.note}</div></div>`);
+banners.innerHTML = bn.join("");
+
+/* ---------- tiles ---------- */
+const c=D.counts, rate=D.passRate;
+const rateColor = D.executed===0 ? "var(--xfail)" : rate>=90?"var(--pass)":rate>=60?"var(--skip)":"var(--fail)";
+const TILES=[
+  ["📋",D.total,"Total Tests","var(--info)"],
+  ["✓",c.passed,"Passed","var(--pass)"],
+  ["✕",c.failed,"Failed","var(--fail)"],
+  ["⏭",c.skipped,"Skipped","var(--skip)"],
+  ["▦",(D.executed?rate.toFixed(1)+"%":"n/a"),"Pass Rate",rateColor],
+  ["◷",dur(M.duration_s),"Duration","var(--time)"],
+  ["🗀",D.modules.length,"Modules","var(--mod)"],
+  ["⊘",c.blocked+c.not_run,"Blocked","var(--blocked)"],
+];
+tiles.innerHTML = TILES.map(([i,v,l,col])=>
+ `<div class="tile" style="--c:${col}"><div class="ic">${i}</div>
+   <div><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div></div>`).join("");
+
+/* ---------- tooltip ---------- */
+const tip=document.getElementById("tip");
+function bindTip(el,title,rows){
+  const show=e=>{tip.innerHTML=`<div class="t">${title}</div>`+
+      rows.map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}</b></div>`).join("");
+    tip.style.opacity=1;move(e);};
+  const move=e=>{const p=e.touches?e.touches[0]:e, w=tip.offsetWidth,h=tip.offsetHeight;
+    tip.style.left=Math.min(p.clientX+14,innerWidth-w-10)+"px";
+    tip.style.top=Math.max(8,p.clientY-h-12)+"px";};
+  el.addEventListener("mouseenter",show); el.addEventListener("mousemove",move);
+  el.addEventListener("mouseleave",()=>tip.style.opacity=0);
+  el.addEventListener("focus",e=>{const r=el.getBoundingClientRect();
+    show({clientX:r.left+r.width/2,clientY:r.top});});
+  el.addEventListener("blur",()=>tip.style.opacity=0);
+  el.setAttribute("tabindex","0");
+}
+
+/* ---------- donut (or hero, when a pie would be degenerate) ---------- */
+(function(){
+  const segs=["passed","failed","skipped","blocked","xfailed","xpassed","not_run"]
+    .map(k=>({k,v:c[k]||0})).filter(s=>s.v>0);
+  const total=segs.reduce((a,s)=>a+s.v,0);
+  if(!total){donut.innerHTML='<div class="empty">No tests were executed.</div>';return;}
+  // A 1-slice pie is not a chart - show the number instead.
+  if(segs.length===1){
+    const s=segs[0];
+    donut.innerHTML=`<div class="hero"><div class="n" style="color:${C[s.k]}">${s.v}</div>
+      <div class="c">${ICON[s.k]} ${LABEL[s.k]} — all ${total} test${total>1?"s":""}</div></div>`;
+    return;
+  }
+  const R=64,r=43,cx=92,cy=86;let a0=-Math.PI/2,paths="";
+  segs.forEach(s=>{
+    const a1=a0+2*Math.PI*s.v/total, big=(a1-a0)>Math.PI?1:0, gap=0.014;
+    const b0=a0+gap,b1=Math.max(b0+0.001,a1-gap);
+    const p=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)];
+    const [x1,y1]=p(R,b0),[x2,y2]=p(R,b1),[x3,y3]=p(r,b1),[x4,y4]=p(r,b0);
+    paths+=`<path class="mark" data-status="${s.k}" data-i="${s.k}" fill="${C[s.k]}"
+      d="M${x1},${y1} A${R},${R} 0 ${big} 1 ${x2},${y2} L${x3},${y3} A${r},${r} 0 ${big} 0 ${x4},${y4} Z"/>`;
+    a0=a1;});
+  const headline = D.executed? D.passRate.toFixed(1)+"%" : "—";
+  donut.innerHTML=`<svg viewBox="0 0 184 172" style="margin:0 auto;max-width:230px" role="img"
+      aria-label="Result distribution: ${segs.map(s=>LABEL[s.k]+" "+s.v).join(", ")}">
+    ${paths}<text x="${cx}" y="${cy-1}" text-anchor="middle" fill="var(--ink)"
+      style="font-size:21px;font-weight:700">${headline}</text>
+    <text x="${cx}" y="${cy+15}" text-anchor="middle" class="tick">Pass Rate</text></svg>
+   <div class="legend">${segs.map(s=>
+      `<span><i style="background:${C[s.k]}"></i>${ICON[s.k]} ${LABEL[s.k]} (${s.v})</span>`).join("")}</div>`;
+  donut.querySelectorAll("path.mark").forEach(p=>{
+    const s=segs.find(x=>x.k===p.dataset.i);
+    bindTip(p,`${ICON[s.k]} ${LABEL[s.k]}`,[["Tests",s.v],["Share",(100*s.v/total).toFixed(1)+"%"]]);});
+})();
+
+/* ---------- module-wise grouped bars ---------- */
+(function(){
+  const mods=D.modules; if(!mods.length){bars.innerHTML='<div class="empty">No modules.</div>';return;}
+  const keys=["passed","failed","skipped","blocked","not_run"].filter(k=>mods.some(m=>m[k]>0));
+  const W=Math.max(340,mods.length*Math.max(78,keys.length*26)),H=210,L=34,B=52,T=12;
+  const max=Math.max(1,...mods.map(m=>Math.max(...keys.map(k=>m[k]))));
+  const pw=(W-L-8)/mods.length, bw=Math.min(20,(pw-14)/keys.length);
+  let g="",bs="";
+  const ticks=max<=2?[0,1,2]:[0,Math.round(max/2),max];
+  [...new Set(ticks)].forEach(t=>{const y=T+(H-T-B)*(1-t/max);
+    g+=`<line class="grid" x1="${L}" y1="${y}" x2="${W-6}" y2="${y}"/>
+        <text class="tick" x="${L-7}" y="${y+4}" text-anchor="end">${t}</text>`;});
+  mods.forEach((m,i)=>{
+    const x0=L+i*pw+(pw-bw*keys.length-2*(keys.length-1))/2;
+    keys.forEach((k,j)=>{
+      const v=m[k]||0, h=(H-T-B)*v/max, x=x0+j*(bw+2), y=T+(H-T-B)-h;
+      if(v>0) bs+=`<rect class="mark" data-status="${k}" data-m="${i}" data-k="${k}"
+          x="${x}" y="${y}" width="${bw}" height="${Math.max(2,h)}" rx="4" fill="${C[k]}"/>
+        <text class="vlab" x="${x+bw/2}" y="${y-5}" text-anchor="middle">${v}</text>`;});
+    const label=m.name.length>17?m.name.slice(0,16)+"…":m.name;
+    bs+=`<text class="tick" x="${L+i*pw+pw/2}" y="${H-B+18}" text-anchor="middle">${esc(label)}</text>
+         <text class="tick" x="${L+i*pw+pw/2}" y="${H-B+32}" text-anchor="middle"
+           style="fill:var(--ink-2)">${m.total}</text>`;});
+  bars.innerHTML=`<svg class="wide" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"
+      aria-label="Results per module">${g}
+    <line class="axis" x1="${L}" y1="${T+(H-T-B)}" x2="${W-6}" y2="${T+(H-T-B)}"/>${bs}</svg>
+   <div class="legend">${keys.map(k=>
+      `<span><i style="background:${C[k]}"></i>${ICON[k]} ${LABEL[k]}</span>`).join("")}</div>`;
+  bars.querySelectorAll("rect.mark").forEach(rc=>{
+    const m=mods[+rc.dataset.m],k=rc.dataset.k;
+    bindTip(rc,esc(m.name),[[`${ICON[k]} ${LABEL[k]}`,m[k]],["Module total",m.total],
+                            ["Module time",dur(m.duration)]]);});
+})();
+
+/* ---------- failure categories: one series, one colour ---------- */
+(function(){
+  const f=D.failureCategories;
+  if(!f.length){cats.innerHTML='<div class="empty">✓ No failures recorded.</div>';return;}
+  const max=Math.max(...f.map(x=>x[1])),rowH=34,L=132,W=420,H=f.length*rowH+16;
+  let b="";
+  f.forEach(([name,n],i)=>{
+    const y=i*rowH+8,w=Math.max(3,(W-L-46)*n/max);
+    const label=name.length>19?name.slice(0,18)+"…":name;
+    b+=`<text class="tick" x="${L-9}" y="${y+17}" text-anchor="end" style="fill:var(--ink-2)">${esc(label)}</text>
+      <rect class="mark" data-status="failed" data-i="${i}" x="${L}" y="${y+3}" width="${w}"
+        height="19" rx="4" fill="var(--fail)"/>
+      <text class="vlab" x="${L+w+8}" y="${y+17}">${n}</text>`;});
+  cats.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" role="img"
+      aria-label="Failures by category">${b}</svg>`;
+  const tot=f.reduce((a,x)=>a+x[1],0);
+  cats.querySelectorAll("rect.mark").forEach(rc=>{
+    const [n,v]=f[+rc.dataset.i];
+    bindTip(rc,esc(n),[["Failures",v],["Share of failures",(100*v/tot).toFixed(0)+"%"]]);});
+})();
+
+/* ---------- filters, sort, list ---------- */
+const T=D.tests;
+const uniq=(k)=>[...new Set(T.map(t=>t[k]))].sort();
+uniq("status").forEach(s=>fStatus.insertAdjacentHTML("beforeend",`<option value="${s}">${LABEL[s]||s}</option>`));
+D.modules.forEach(m=>fModule.insertAdjacentHTML("beforeend",`<option value="${esc(m.name)}">${esc(m.name)}</option>`));
+uniq("type").forEach(s=>fType.insertAdjacentHTML("beforeend",`<option value="${esc(s)}">${esc(s)}</option>`));
+let sortKey="module";
+
+function current(){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  let rows=T.filter(t=>
+    (!q || (t.name+" "+t.tc_id+" "+t.module+" "+t.nodeid).toLowerCase().includes(q)) &&
+    (!fStatus.value||t.status===fStatus.value) &&
+    (!fModule.value||t.module===fModule.value) &&
+    (!fType.value  ||t.type===fType.value));
+  const rank={failed:0,blocked:1,skipped:2,not_run:3,xpassed:4,xfailed:5,passed:6};
+  if(sortKey==="status")   rows.sort((a,b)=>(rank[a.status]??9)-(rank[b.status]??9));
+  if(sortKey==="duration") rows.sort((a,b)=>b.duration-a.duration);
+  if(sortKey==="name")     rows.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sortKey==="module")   rows.sort((a,b)=>a.order-b.order||a.tc_id.localeCompare(b.tc_id));
+  return rows;
+}
+function whyHTML(t){
+  const x=t.explain;
+  if(!x||!x.headline) return t.error?`<pre class="err" style="flex:1 1 100%">${esc(t.error)}</pre>`:"";
+  const list=(arr,tag)=>`<${tag}>${arr.map(i=>`<li>${esc(i)}</li>`).join("")}</${tag}>`;
+  return `<div class="why">
+    <div class="why-hd">
+      <span class="own ${x.owner}">${esc(x.ownerTitle)}</span>
+      <span class="own-note">${esc(x.ownerNote)}</span>
+    </div>
+    <div class="why-bd">
+      <h4>What happened</h4><p class="lead">${esc(x.headline)}</p>
+      <h4>What this means</h4><p>${esc(x.meaning)}</p>
+      ${x.detail&&x.detail.length?`<h4>The app flagged these as still invalid</h4>
+        ${list(x.detail,"ul").replace('<ul>','<ul class="fields">')}`:""}
+      <h4>Most likely causes — check in this order</h4>${list(x.causes,"ol")}
+      <h4>How to check &amp; fix</h4>${list(x.fixes,"ol")}
+      <details><summary>Show the raw error the test produced</summary>
+        <pre class="err">${esc(t.error)}</pre></details>
+    </div></div>`;
+}
+function rowHTML(t){
+  return `<div class="row">
+    <span class="tcid">${esc(t.tc_id)}</span>
+    <span class="tname">${esc(t.name)}</span>
+    ${t.retries?`<span class="tag" title="Retries">↻${t.retries}</span>`:""}
+    <span class="tag">${esc(t.type)}</span>
+    <span class="dur">${dur(t.duration)}</span>
+    <span class="st ${t.status}">${ICON[t.status]} ${LABEL[t.status]||t.status}</span>
+    ${whyHTML(t)}</div>`;
+}
+function draw(){
+  const rows=current();
+  count.textContent=`Showing ${rows.length} of ${T.length} tests`;
+  const groups=new Map();
+  rows.forEach(t=>{(groups.get(t.module)||groups.set(t.module,[]).get(t.module)).push(t);});
+  list.innerHTML=[...groups.entries()].map(([name,items])=>{
+    const p=items.filter(t=>t.status==="passed").length;
+    const f=items.filter(t=>t.status==="failed").length;
+    const ex=items.filter(t=>["passed","failed","xfailed","xpassed"].includes(t.status)).length;
+    const d=items.reduce((a,t)=>a+t.duration,0);
+    return `<details class="grp" ${f?"open":""} style="--gc:${f?"var(--fail)":p?"var(--pass)":"var(--xfail)"}">
+      <summary><span class="gname">${esc(name)}</span><div class="badges">
+        <span class="b">${items.length} Tests</span>
+        <span class="b p">${p} Pass</span>
+        <span class="b f">${f} Fail</span>
+        <span class="b">${ex?Math.round(100*p/ex):0}%</span>
+        <span class="b">${dur(d)}</span></div></summary>
+      ${items.map(rowHTML).join("")}</details>`;}).join("")
+    || `<div class="panel"><div class="empty">No tests match these filters.</div></div>`;
+  tableview.innerHTML=`<table><caption class="empty" style="padding:8px 0;text-align:left">
+      Table view — every value on this page, without relying on colour.</caption>
+    <thead><tr><th>ID</th><th>Module</th><th>Test</th><th>Type</th><th>Status</th><th>Duration</th></tr></thead>
+    <tbody>${rows.map(t=>`<tr><td>${esc(t.tc_id)}</td><td>${esc(t.module)}</td><td>${esc(t.name)}</td>
+      <td>${esc(t.type)}</td><td>${ICON[t.status]} ${LABEL[t.status]||t.status}</td>
+      <td>${dur(t.duration)}</td></tr>`).join("")}</tbody></table>`;
+}
+["q","fStatus","fModule","fType"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener(id==="q"?"input":"change",draw);});
+reset.onclick=()=>{q.value="";fStatus.value="";fModule.value="";fType.value="";draw();};
+toggleTable.onclick=()=>{const on=tableview.hasAttribute("hidden");
+  tableview.toggleAttribute("hidden",!on);list.toggleAttribute("hidden",on);
+  toggleTable.setAttribute("aria-pressed",String(on));};
+document.querySelectorAll(".sb").forEach(b=>b.onclick=()=>{
+  sortKey=b.dataset.sort;
+  document.querySelectorAll(".sb").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  draw();});
+draw();
+foot.innerHTML = `${D.total} tests · ${D.modules.length} modules · generated ${esc(M.generated)}`
+  + `<br>SprintNXT Escrow automation — reports/dashboard.html`;
+</script></body></html>

@@ -1,0 +1,67 @@
+"""Root pytest configuration shared by every suite.
+
+Layers our own context/error monitoring on top of pytest-playwright, whose
+CLI flags remain available: --headed, --browser {chromium|firefox|webkit},
+--slowmo, --tracing, --video, --screenshot, etc.
+"""
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+import pytest
+from playwright.sync_api import Page
+
+from config.settings import settings
+from core.artifact_store import ArtifactStore
+
+SCREENSHOT_DIR = Path("reports/screenshots")
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """Override pytest-playwright defaults for all contexts."""
+    return {
+        **browser_context_args,
+        "ignore_https_errors": True,          # UAT certs are often self-signed
+        "viewport": {"width": 1440, "height": 900},
+        "accept_downloads": True,
+        # Both portals call navigator.geolocation on login and hard-block with
+        # "Please allow the Location access!" if it is denied or unanswered.
+        "permissions": ["geolocation"],
+        "geolocation": {"latitude": 28.6139, "longitude": 77.2090},
+        "locale": "en-IN",
+    }
+
+
+@pytest.fixture
+def artifact_store() -> ArtifactStore:
+    """JSON-backed hand-off (e.g. the Escrow ID) between admin and partner."""
+    return ArtifactStore()
+
+
+# --- screenshot-on-failure for our custom *_page fixtures -----------------
+def _find_page(item) -> Page | None:
+    for value in getattr(item, "funcargs", {}).values():
+        if isinstance(value, Page):
+            return value
+        inner = getattr(value, "page", None)
+        if isinstance(inner, Page):
+            return inner
+    return None
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call" and report.failed:
+        page = _find_page(item)
+        if page is not None:
+            SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+            name = re.sub(r"[^A-Za-z0-9_.-]", "_", item.nodeid)[:150]
+            try:
+                page.screenshot(path=str(SCREENSHOT_DIR / f"FAIL_{name}.png"),
+                                full_page=True)
+            except Exception:
+                pass

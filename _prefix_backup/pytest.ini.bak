@@ -1,0 +1,24 @@
+[pytest]
+# Make the project root importable so `from config...`, `from core...`,
+# `from admin...`, `from partner...` resolve when running `pytest` anywhere.
+pythonpath = .
+
+testpaths = admin/tests partner/tests trustee/tests
+
+addopts =
+    -v
+    -ra
+    --strict-markers
+    --html=reports/report.html
+    --self-contained-html
+
+markers =
+    smoke: fast confidence checks (login, navigation)
+    regression: full functional coverage
+    e2e: cross-portal end-to-end (admin creates -> partner verifies)
+    admin: Super Admin portal suite
+    partner: Partner portal suite
+    trustee: Trustee portal suite (future)
+    negative: negative / validation / error-handling scenarios
+    create: submits the wizard and leaves a real escrow record behind in UAT
+    security: basic security checks (masking, XSS/SQLi input handling, session)

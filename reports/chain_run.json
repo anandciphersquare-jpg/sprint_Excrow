@@ -1,0 +1,105 @@
+{
+  "summary": {
+    "PASS": 0,
+    "FAIL": 0,
+    "BLOCKED": 10,
+    "INFO": 0
+  },
+  "started": "2026-09-22 18:59:00",
+  "ended": "2026-09-22 19:04:01",
+  "phase": "partner",
+  "chain": {
+    "variant": "happy",
+    "escrow_id": "EXC-0926-328488",
+    "escrow_name": "AutoEsc1G5IU4",
+    "email": "anand.kumar+new1166@paysprint.in",
+    "company": "QAHGZPZ Ltd",
+    "first_name": "QaJbhl",
+    "last_name": "TestJBHL",
+    "mobile": "7976555201",
+    "user_id": "",
+    "portal_link": "",
+    "new_password": ""
+  },
+  "escrows": [
+    {
+      "variant": "happy",
+      "title": "Default payload (Payout + VID Collection, Percentage/Monthly)",
+      "escrow_id": "EXC-0926-328488",
+      "escrow_name": "AutoEsc1G5IU4",
+      "account_types": [
+        "Payout",
+        "VID Collection"
+      ],
+      "rate_type": "Percentage",
+      "charge_frequency": "Monthly",
+      "representative": "anand.kumar+new1166@paysprint.in",
+      "is_chain": true,
+      "status": "PASS",
+      "listed": true,
+      "error": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "TC-MAIL-01",
+      "title": "Welcome email received for the escrow",
+      "status": "BLOCKED",
+      "evidence": "Gmail is signed out. Sign in once, headed:"
+    },
+    {
+      "id": "TC-MAIL-02",
+      "title": "Email carries User ID + temporary password",
+      "status": "BLOCKED",
+      "evidence": "Gmail is signed out. Sign in once, headed:"
+    },
+    {
+      "id": "TC-MAIL-03",
+      "title": "Escrow ID in the email matches the portal",
+      "status": "BLOCKED",
+      "evidence": "Gmail is signed out. Sign in once, headed:"
+    },
+    {
+      "id": "TC-MAIL-04",
+      "title": "Partner link points at the partner portal",
+      "status": "BLOCKED",
+      "evidence": "Gmail is signed out. Sign in once, headed:"
+    },
+    {
+      "id": "TC-LOGIN-01",
+      "title": "First sign-in with the emailed credentials",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    },
+    {
+      "id": "TC-PWD-01",
+      "title": "Password change is forced",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    },
+    {
+      "id": "TC-PWD-02",
+      "title": "Password change succeeds",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    },
+    {
+      "id": "TC-PWD-03",
+      "title": "Temporary password no longer works",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    },
+    {
+      "id": "TC-LOGIN-02",
+      "title": "New password authenticates",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    },
+    {
+      "id": "TC-MODULES",
+      "title": "Partner module suites pass as the new partner",
+      "status": "BLOCKED",
+      "evidence": "no welcome mail could be read"
+    }
+  ]
+}

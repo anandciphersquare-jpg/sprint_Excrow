@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+reports/report.html
+reports/screenshots/*.png
+shared/artifacts.json
+test-results/
+.playwright/
+.playwright-mcp/
+.pytest_cache/
+.claude/settings.local.json
+
+# Saved browser session for mailbox access (contains Google cookies)
+.auth/
+shared/mail_credentials.json
+
+# Live partner passwords, saved so the mailbox is read once per partner
+# rather than every run. Real credentials for real UAT accounts - same
+# reasoning as .env.
+shared/partner_credentials.json
+shared/chain_state.json

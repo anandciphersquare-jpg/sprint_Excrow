@@ -1,0 +1,44 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\sprintnxt-escrow-automation
+configfile: pytest.ini
+plugins: anyio-4.12.0, langsmith-0.7.22, locust-2.43.0, asyncio-1.3.0, base-url-2.1.0, html-4.2.0, metadata-3.1.1, playwright-0.7.2, timeout-2.4.0, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+timeout: 300.0s
+timeout method: thread
+timeout func_only: False
+collected 22 items
+
+partner_ops\tests\test_beneficiary.py .ss......sss..........             [100%]
+Test Execution Report: file:///C:/sprintnxt-escrow-automation/reports/dashboard.html
+
+
+============================ slowest 20 durations =============================
+100.43s setup    partner_ops/tests/test_beneficiary.py::test_beneficiary_list_and_controls_render[chromium]
+16.83s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-email-abc@]
+16.63s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-email-not-an-email]
+16.19s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-ifsc-BADIFSC]
+16.13s setup    partner_ops/tests/test_beneficiary.py::test_beneficiary_verification_route_exists_for_unverified_records[chromium]
+15.89s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-accountNumber-12345]
+15.83s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-mobile-12345678901]
+15.78s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-mobile-123]
+15.76s setup    partner_ops/tests/test_beneficiary.py::test_script_payload_in_a_name_field_is_not_executed[chromium]
+15.74s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-accountNumber-abcdefghij]
+15.71s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-pincode-abcdef]
+15.71s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-mobile-abcde12345]
+15.66s setup    partner_ops/tests/test_beneficiary.py::test_add_beneficiary_modal_exposes_every_documented_field[chromium]
+15.61s setup    partner_ops/tests/test_beneficiary.py::test_deactive_beneficiary_offers_no_payout_route[chromium]
+15.59s setup    partner_ops/tests/test_beneficiary.py::test_typed_bank_name_without_picking_is_rejected[chromium]
+15.53s setup    partner_ops/tests/test_beneficiary.py::test_duplicate_account_number_is_refused[chromium]
+15.45s setup    partner_ops/tests/test_beneficiary.py::test_invalid_beneficiary_field_is_rejected_with_its_own_message[chromium-ifsc-1234567890X]
+15.32s setup    partner_ops/tests/test_beneficiary.py::test_empty_mandatory_submit_is_guarded_and_silent[chromium]
+15.22s setup    partner_ops/tests/test_beneficiary.py::test_leading_and_trailing_spaces_do_not_defeat_validation[chromium]
+15.19s setup    partner_ops/tests/test_beneficiary.py::test_beneficiary_records_are_well_formed[chromium]
+- Generated html report: file:///C:/sprintnxt-escrow-automation/reports/ops_bene.html -
+=========================== short test summary info ===========================
+SKIPPED [1] partner_ops\tests\test_beneficiary.py:95: This escrow has no beneficiaries to inspect.
+SKIPPED [1] partner_ops\tests\test_beneficiary.py:119: No Deactive beneficiary present to verify the gate.
+SKIPPED [1] partner_ops\tests\test_beneficiary.py:252: Creates a permanent beneficiary in UAT that cannot be removed from the partner UI. Re-run with PARTNER_OPS_CREATE_DATA=1 to include it.
+SKIPPED [1] partner_ops\tests\test_beneficiary.py:298: No existing beneficiary to duplicate.
+SKIPPED [1] partner_ops\tests\test_beneficiary.py:338: No unverified beneficiary present.
+================== 17 passed, 5 skipped in 459.04s (0:07:39) ==================

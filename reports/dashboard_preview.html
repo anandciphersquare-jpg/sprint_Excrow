@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Execution Report - SprintNXT Escrow</title>
+<style>
+:root{
+  color-scheme: dark;
+  --plane:#0b1220; --surface:#161f2e; --surface-2:#1c2739; --raise:#223047;
+  --ink:#f1f5f9; --ink-2:#a9b6c9; --muted:#6f7f96;
+  --hair:rgba(255,255,255,.09); --hair-2:rgba(255,255,255,.16);
+  /* status - reserved, never used for a non-status value */
+  --pass:#0ca30c; --fail:#d03b3b; --skip:#fab219; --blocked:#9085e9; --xfail:#8b95a7;
+  /* neutral metric accents - deliberately NOT status hues */
+  --info:#3987e5; --time:#d55181; --mod:#199e70;
+  --r:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 56px}
+a{color:#6aa9f0;text-decoration:none}
+
+/* ---------- header ---------- */
+.hdr{background:linear-gradient(135deg,#152238 0%,#0f1a2b 60%,#122033 100%);
+  border-bottom:1px solid var(--hair);margin-bottom:26px}
+.hdr-in{max-width:1280px;margin:0 auto;padding:26px 20px 24px;
+  display:flex;gap:24px;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0 0 6px;font-size:26px;letter-spacing:-.4px}
+.spec{font-size:13px;color:#6aa9f0;font-family:ui-monospace,Consolas,monospace}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);
+  border:1px solid var(--hair);border-radius:999px;padding:5px 12px;font-size:11.5px}
+.chip b{color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-size:10px}
+.meta{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:12px 16px;min-width:290px;align-self:flex-start}
+.meta div{display:flex;justify-content:space-between;gap:24px;padding:4px 0;font-size:12px}
+.meta span:first-child{color:var(--muted);letter-spacing:.6px;font-size:10px;
+  text-transform:uppercase;font-weight:700;padding-top:2px}
+.meta span:last-child{font-variant-numeric:tabular-nums}
+.meta .hl{color:var(--pass);font-weight:700}
+
+/* ---------- banner ---------- */
+.banner{border-radius:var(--r);padding:13px 18px;margin-bottom:22px;font-size:13px;
+  display:flex;gap:11px;align-items:flex-start;line-height:1.55}
+.banner.warn{background:rgba(250,178,25,.10);border:1px solid rgba(250,178,25,.42);color:#f6ddab}
+.banner.info{background:rgba(57,135,229,.10);border:1px solid rgba(57,135,229,.34);color:#bcd6f6}
+.banner b{color:#fff}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--hair);border-left:3px solid var(--c,var(--info));
+  border-radius:var(--r);padding:15px 16px;display:flex;align-items:center;gap:13px}
+.tile .ic{width:36px;height:36px;flex:0 0 36px;border-radius:9px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c,var(--info)) 16%,transparent);font-size:17px}
+.tile .v{font-size:25px;font-weight:700;color:var(--c,var(--info));line-height:1.1}
+.tile .l{font-size:10px;letter-spacing:.85px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin-top:3px}
+
+/* ---------- panels ---------- */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-bottom:22px}
+.panel{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:16px 18px 18px;min-width:0}
+.panel h2{margin:0;font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink-2);font-weight:700;padding-bottom:11px;border-bottom:1px solid var(--hair)}
+.plot{padding-top:16px;position:relative;overflow-x:auto}
+.hero{text-align:center;padding:30px 0 18px}
+.hero .n{font-size:42px;font-weight:700;line-height:1}
+.hero .c{font-size:12px;color:var(--muted);margin-top:6px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding-top:14px;margin-top:12px;
+  border-top:1px solid var(--hair);font-size:12px;color:var(--ink-2)}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
+.empty{color:var(--muted);font-size:12.5px;padding:34px 0;text-align:center}
+svg{display:block;max-width:100%}
+/* A chart that must stay legible scrolls inside its card rather than
+   shrinking its axis labels into unreadability. */
+.plot svg.wide{max-width:none}
+svg text{font:11px system-ui,-apple-system,"Segoe UI",sans-serif}
+.tick{fill:var(--muted);font-variant-numeric:tabular-nums}
+.grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+.axis{stroke:rgba(255,255,255,.16);stroke-width:1}
+.vlab{fill:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.mark{transition:opacity .12s}
+.plot:hover .mark{opacity:.5}
+.plot .mark:hover{opacity:1}
+
+/* ---------- tooltip ---------- */
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:#0a1120;border:1px solid var(--hair-2);border-radius:9px;padding:9px 12px;
+  font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:270px}
+#tip .t{font-weight:700;margin-bottom:5px}
+#tip .r{display:flex;justify-content:space-between;gap:18px;color:var(--ink-2)}
+#tip .r b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- controls ---------- */
+.controls{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:13px 15px;display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search{flex:1 1 260px;position:relative;min-width:200px}
+.search input{width:100%;background:var(--plane);border:1px solid var(--hair);border-radius:9px;
+  padding:9px 12px 9px 34px;color:var(--ink);font-size:13px}
+.search::before{content:"⌕";position:absolute;left:12px;top:7px;color:var(--muted);font-size:15px}
+select,.btn{background:var(--plane);border:1px solid var(--hair);border-radius:9px;
+  padding:9px 12px;color:var(--ink);font-size:12.5px;cursor:pointer}
+.count{color:var(--muted);font-size:12px;margin-left:auto}
+.sorts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;
+  font-size:11px;color:var(--muted)}
+.sorts b{letter-spacing:.8px;text-transform:uppercase;font-weight:700}
+.sb{background:var(--surface-2);border:1px solid var(--hair);border-radius:999px;
+  padding:5px 13px;font-size:12px;color:var(--ink-2);cursor:pointer}
+.sb[aria-pressed=true]{background:var(--info);border-color:var(--info);color:#fff;font-weight:600}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{
+  outline:2px solid var(--info);outline-offset:2px}
+
+/* ---------- module groups ---------- */
+.grp{background:var(--surface);border:1px solid var(--hair);border-left:3px solid var(--gc,var(--pass));
+  border-radius:var(--r);margin-bottom:11px;overflow:hidden}
+.grp>summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;
+  gap:11px;flex-wrap:wrap}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary::before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+.grp[open]>summary::before{transform:rotate(90deg)}
+.gname{font-weight:700;font-size:14px}
+.badges{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.b{border-radius:999px;padding:3px 10px;font-size:11px;border:1px solid var(--hair);
+  background:var(--surface-2);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.b.p{color:var(--pass);border-color:color-mix(in srgb,var(--pass) 45%,transparent)}
+.b.f{color:var(--fail);border-color:color-mix(in srgb,var(--fail) 45%,transparent)}
+
+/* ---------- rows ---------- */
+.row{display:flex;align-items:center;gap:11px;padding:11px 16px;border-top:1px solid var(--hair);
+  flex-wrap:wrap}
+.row:hover{background:var(--surface-2)}
+.tcid{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-2);
+  background:var(--plane);border:1px solid var(--hair);border-radius:6px;padding:3px 8px;flex:0 0 auto}
+.tname{flex:1 1 300px;font-size:13px;min-width:220px}
+.tag{font-size:11px;border-radius:999px;padding:3px 10px;background:var(--surface-2);
+  border:1px solid var(--hair);color:var(--ink-2);flex:0 0 auto}
+.dur{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.st{font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;flex:0 0 auto;
+  display:inline-flex;align-items:center;gap:5px;letter-spacing:.4px}
+.st.passed  {color:var(--pass);   background:color-mix(in srgb,var(--pass) 15%,transparent);   border:1px solid color-mix(in srgb,var(--pass) 45%,transparent)}
+.st.failed  {color:var(--fail);   background:color-mix(in srgb,var(--fail) 15%,transparent);   border:1px solid color-mix(in srgb,var(--fail) 45%,transparent)}
+.st.skipped {color:var(--skip);   background:color-mix(in srgb,var(--skip) 15%,transparent);   border:1px solid color-mix(in srgb,var(--skip) 45%,transparent)}
+.st.blocked {color:var(--blocked);background:color-mix(in srgb,var(--blocked) 15%,transparent);border:1px solid color-mix(in srgb,var(--blocked) 45%,transparent)}
+.st.xfailed,.st.xpassed,.st.not_run{color:var(--xfail);background:rgba(139,149,167,.13);
+  border:1px solid rgba(139,149,167,.36)}
+.err{margin-top:9px;background:var(--plane);border:1px solid var(--hair);
+  border-left:3px solid var(--fail);border-radius:8px;padding:10px 13px;
+  font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:#f0b8b8;
+  white-space:pre-wrap;word-break:break-word;max-height:230px;overflow:auto}
+
+/* ---------- plain-English failure explanation ---------- */
+.why{flex:1 1 100%;margin-top:10px;background:var(--plane);border:1px solid var(--hair);
+  border-radius:10px;padding:0;overflow:hidden}
+.why-hd{display:flex;align-items:center;gap:9px;padding:10px 14px;
+  border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.own{font-size:11px;font-weight:700;border-radius:999px;padding:3px 11px;letter-spacing:.3px}
+.own.product    {color:var(--fail);   background:color-mix(in srgb,var(--fail) 15%,transparent);   border:1px solid color-mix(in srgb,var(--fail) 45%,transparent)}
+.own.test       {color:var(--skip);   background:color-mix(in srgb,var(--skip) 15%,transparent);   border:1px solid color-mix(in srgb,var(--skip) 45%,transparent)}
+.own.environment{color:var(--info);   background:color-mix(in srgb,var(--info) 15%,transparent);   border:1px solid color-mix(in srgb,var(--info) 42%,transparent)}
+.own.unknown    {color:var(--xfail);  background:rgba(139,149,167,.14);border:1px solid rgba(139,149,167,.4)}
+.own-note{font-size:11.5px;color:var(--muted)}
+.why-bd{padding:13px 15px 15px;font-size:13px;line-height:1.62}
+.why h4{margin:15px 0 6px;font-size:10px;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--muted);font-weight:700}
+.why h4:first-child{margin-top:0}
+.why p{margin:0;color:var(--ink)}
+.why .lead{font-size:14px;font-weight:600;color:#fff;line-height:1.5}
+.why ol,.why ul{margin:0;padding-left:20px;color:var(--ink-2)}
+.why li{margin:4px 0}
+.why .fields{list-style:none;padding:0;display:flex;flex-direction:column;gap:5px}
+.why .fields li{background:var(--surface-2);border:1px solid var(--hair);border-radius:7px;
+  padding:6px 11px;font-size:12.5px;color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+.why details{margin-top:14px;border-top:1px solid var(--hair);padding-top:11px}
+.why summary{cursor:pointer;font-size:11.5px;color:var(--muted);list-style:none}
+.why summary::-webkit-details-marker{display:none}
+.why summary::before{content:"▸ ";}
+.why details[open] summary::before{content:"▾ ";}
+.why .err{margin-top:9px}
+
+/* ---------- table view ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--hair)}
+th{color:var(--muted);font-size:10px;letter-spacing:.7px;text-transform:uppercase}
+td{font-variant-numeric:tabular-nums}
+#tableview{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  padding:6px 10px 10px;margin-bottom:14px}
+.foot{color:var(--muted);font-size:11.5px;text-align:center;margin-top:26px;line-height:1.7}
+[hidden]{display:none !important}
+
+/* print / forced-colors: hatching so status never rides on hue alone */
+@media print,(forced-colors:active){
+  body{background:#fff;color:#000}
+  .panel,.tile,.grp,.controls,#tableview{background:#fff;border:1px solid #999}
+  .mark[data-status=failed]{fill:url(#hatchA)}
+  .mark[data-status=skipped]{fill:url(#hatchB)}
+  #tip,.sorts{display:none}
+}
+</style></head><body>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <pattern id="hatchA" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+    <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#000" stroke-width="2.4"/></pattern>
+  <pattern id="hatchB" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(135)">
+    <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#000" stroke-width="2.4"/></pattern>
+</defs></svg>
+
+<header class="hdr"><div class="hdr-in">
+  <div>
+    <h1>Test Execution Report</h1>
+    <div class="spec" id="specName"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="meta" id="metaBox"></div>
+</div></header>
+
+<div class="wrap">
+  <div id="banners"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="panels">
+    <section class="panel"><h2>Pass / Fail Distribution</h2><div class="plot" id="donut"></div></section>
+    <section class="panel"><h2>Module-wise Results</h2><div class="plot" id="bars"></div></section>
+    <section class="panel"><h2>Failure Categories</h2><div class="plot" id="cats"></div></section>
+  </div>
+
+  <div class="controls">
+    <div class="search"><input id="q" type="search" placeholder="Search tests, IDs, features…" aria-label="Search tests"></div>
+    <select id="fStatus" aria-label="Filter by status"><option value="">All Statuses</option></select>
+    <select id="fModule" aria-label="Filter by module"><option value="">All Modules</option></select>
+    <select id="fType"   aria-label="Filter by type"><option value="">All Types</option></select>
+    <button class="btn" id="reset">Reset</button>
+    <button class="btn" id="toggleTable" aria-pressed="false">Table view</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="sorts"><b>Sort by:</b>
+    <button class="sb" data-sort="module"   aria-pressed="true">Module</button>
+    <button class="sb" data-sort="status"   aria-pressed="false">Status</button>
+    <button class="sb" data-sort="duration" aria-pressed="false">Duration</button>
+    <button class="sb" data-sort="name"     aria-pressed="false">Name</button>
+  </div>
+
+  <div id="tableview" hidden></div>
+  <div id="list"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+const D = {"meta": {"suite": "LAYOUT PREVIEW - not a real run", "module_label": "SprintNXT Escrow - Admin & Partner", "browser": "Chromium", "env": "UAT", "by": "QA Team", "started": "\u2014", "ended": "\u2014", "duration_s": 4422.4, "generated": "6 Aug 2026, 11:54:13 AM", "note": "", "demo": true}, "counts": {"passed": 75, "failed": 6, "skipped": 3, "blocked": 1, "xfailed": 2, "xpassed": 0, "not_run": 0}, "executed": 83, "total": 87, "passRate": 92.8, "modules": [{"name": "Login", "order": 0, "passed": 1, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 1, "duration": 47.3}, {"name": "Stage 1 - Project Information", "order": 1, "passed": 20, "failed": 2, "skipped": 1, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 23, "duration": 743.9}, {"name": "Stage 2 - Service Pricing", "order": 2, "passed": 17, "failed": 1, "skipped": 2, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 20, "duration": 731.0000000000001}, {"name": "Stage 3 - Documents", "order": 3, "passed": 13, "failed": 0, "skipped": 0, "blocked": 1, "xfailed": 2, "xpassed": 0, "not_run": 0, "total": 16, "duration": 646.7999999999998}, {"name": "Stage 4 - Review & Submit", "order": 4, "passed": 8, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 8, "duration": 263.90000000000003}, {"name": "End-to-End Creation", "order": 5, "passed": 14, "failed": 3, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 17, "duration": 1894.9000000000003}, {"name": "Partner - Login", "order": 6, "passed": 1, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 1, "duration": 41.1}, {"name": "Partner - Verify Escrow", "order": 7, "passed": 1, "failed": 0, "skipped": 0, "blocked": 0, "xfailed": 0, "xpassed": 0, "not_run": 0, "total": 1, "duration": 53.5}], "failureCategories": [["Assertion Failure", 6]], "tests": [{"tc_id": "TC-001", "nodeid": "admin/tests/test_login.py::test_admin_login_and_pin[chromium]", "module": "Login", "order": 0, "name": "Admin login and pin [chromium]", "type": "Smoke", "status": "passed", "duration": 47.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-002", "nodeid": "admin/tests/test_escrow_details_validations.py::test_account_type_empty_until_bank_chosen[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Account type empty until bank chosen [chromium]", "type": "Negative", "status": "passed", "duration": 37.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-003", "nodeid": "admin/tests/test_escrow_details_validations.py::test_account_types_can_be_combined[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Account types can be combined [chromium]", "type": "Functional", "status": "passed", "duration": 48.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-004", "nodeid": "admin/tests/test_escrow_details_validations.py::test_account_types_load_for_selected_bank[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Account types load for selected bank [chromium]", "type": "Functional", "status": "passed", "duration": 19.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-005", "nodeid": "admin/tests/test_escrow_details_validations.py::test_bank_options_match_expected[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Bank options match expected [chromium]", "type": "Functional", "status": "passed", "duration": 25.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-006", "nodeid": "admin/tests/test_escrow_details_validations.py::test_complete_stage_one_enables_next[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Complete stage one enables next [chromium]", "type": "Functional", "status": "passed", "duration": 24.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-007", "nodeid": "admin/tests/test_escrow_details_validations.py::test_each_account_type_can_be_selected_alone[chromium-Payout]", "module": "Stage 1 - Project Information", "order": 1, "name": "Each account type can be selected alone [chromium-Payout]", "type": "Functional", "status": "passed", "duration": 27.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-008", "nodeid": "admin/tests/test_escrow_details_validations.py::test_each_account_type_can_be_selected_alone[chromium-UPI Collection]", "module": "Stage 1 - Project Information", "order": 1, "name": "Each account type can be selected alone [chromium-UPI Collection]", "type": "Functional", "status": "passed", "duration": 40.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-009", "nodeid": "admin/tests/test_escrow_details_validations.py::test_each_account_type_can_be_selected_alone[chromium-VID Collection]", "module": "Stage 1 - Project Information", "order": 1, "name": "Each account type can be selected alone [chromium-VID Collection]", "type": "Functional", "status": "passed", "duration": 32.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-010", "nodeid": "admin/tests/test_escrow_details_validations.py::test_empty_form_blocks_progress[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Empty form blocks progress [chromium]", "type": "Negative", "status": "passed", "duration": 43.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-011", "nodeid": "admin/tests/test_escrow_details_validations.py::test_escrow_id_is_generated_and_readonly[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Escrow id is generated and readonly [chromium]", "type": "Smoke", "status": "passed", "duration": 43.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-012", "nodeid": "admin/tests/test_escrow_details_validations.py::test_ifsc_is_capped_at_11_characters[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Ifsc is capped at 11 characters [chromium]", "type": "Functional", "status": "passed", "duration": 19.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-013", "nodeid": "admin/tests/test_escrow_details_validations.py::test_ifsc_is_upper_cased[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Ifsc is upper cased [chromium]", "type": "Functional", "status": "passed", "duration": 18.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-014", "nodeid": "admin/tests/test_escrow_details_validations.py::test_industry_options_match_expected[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Industry options match expected [chromium]", "type": "Functional", "status": "skipped", "duration": 31.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-015", "nodeid": "admin/tests/test_escrow_details_validations.py::test_invalid_account_number_rejected[chromium-111111111111111111111111111111-Must be 9-18 digits]", "module": "Stage 1 - Project Information", "order": 1, "name": "Invalid account number rejected [chromium-111111111111111111111111111111-Must be 9-18 digits]", "type": "Negative", "status": "passed", "duration": 24.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-016", "nodeid": "admin/tests/test_escrow_details_validations.py::test_invalid_account_number_rejected[chromium-12-Must be 9-18 digits]", "module": "Stage 1 - Project Information", "order": 1, "name": "Invalid account number rejected [chromium-12-Must be 9-18 digits]", "type": "Negative", "status": "passed", "duration": 31.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-017", "nodeid": "admin/tests/test_escrow_details_validations.py::test_invalid_account_number_rejected[chromium-12ab!@-Must contain only digits]", "module": "Stage 1 - Project Information", "order": 1, "name": "Invalid account number rejected [chromium-12ab!@-Must contain only digits]", "type": "Negative", "status": "passed", "duration": 30.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-018", "nodeid": "admin/tests/test_escrow_details_validations.py::test_invalid_ifsc_rejected[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Invalid ifsc rejected [chromium]", "type": "Negative", "status": "passed", "duration": 19.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-019", "nodeid": "admin/tests/test_escrow_details_validations.py::test_malformed_email_rejected[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Malformed email rejected [chromium]", "type": "Negative", "status": "passed", "duration": 49.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-020", "nodeid": "admin/tests/test_escrow_details_validations.py::test_missing_single_field_still_blocks_next[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Missing single field still blocks next [chromium]", "type": "Negative", "status": "passed", "duration": 26.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-021", "nodeid": "admin/tests/test_escrow_details_validations.py::test_name_field_does_not_execute_payloads[chromium-' OR '1'='1]", "module": "Stage 1 - Project Information", "order": 1, "name": "Name field does not execute payloads [chromium-' OR '1'='1]", "type": "Security", "status": "passed", "duration": 47.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-022", "nodeid": "admin/tests/test_escrow_details_validations.py::test_name_field_does_not_execute_payloads[chromium-<script>alert('xss')<\/script>]", "module": "Stage 1 - Project Information", "order": 1, "name": "Name field does not execute payloads [chromium-<script>alert('xss')<\/script>]", "type": "Security", "status": "passed", "duration": 34.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-023", "nodeid": "admin/tests/test_escrow_details_validations.py::test_trustee_options_are_mutually_exclusive[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Trustee options are mutually exclusive [chromium]", "type": "Negative", "status": "failed", "duration": 36.1, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 1, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-024", "nodeid": "admin/tests/test_escrow_details_validations.py::test_unknown_email_reports_user_not_found[chromium]", "module": "Stage 1 - Project Information", "order": 1, "name": "Unknown email reports user not found [chromium]", "type": "Negative", "status": "failed", "duration": 30.8, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 0, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-025", "nodeid": "admin/tests/test_service_pricing.py::test_amounts_without_dates_still_block_next[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Amounts without dates still block next [chromium]", "type": "Negative", "status": "passed", "duration": 39.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-026", "nodeid": "admin/tests/test_service_pricing.py::test_changing_frequency_invalidates_the_dates[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Changing frequency invalidates the dates [chromium]", "type": "Negative", "status": "passed", "duration": 46.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-027", "nodeid": "admin/tests/test_service_pricing.py::test_clearing_a_charge_reblocks_next[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Clearing a charge reblocks next [chromium]", "type": "Negative", "status": "passed", "duration": 43.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-028", "nodeid": "admin/tests/test_service_pricing.py::test_completing_pricing_enables_next[chromium-Fixed]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Completing pricing enables next [chromium-Fixed]", "type": "Functional", "status": "passed", "duration": 48.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-029", "nodeid": "admin/tests/test_service_pricing.py::test_completing_pricing_enables_next[chromium-Percentage]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Completing pricing enables next [chromium-Percentage]", "type": "Functional", "status": "passed", "duration": 33.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-030", "nodeid": "admin/tests/test_service_pricing.py::test_each_charge_frequency_completes_the_stage[chromium-Annually]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Each charge frequency completes the stage [chromium-Annually]", "type": "Functional", "status": "failed", "duration": 47.3, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 0, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-031", "nodeid": "admin/tests/test_service_pricing.py::test_each_charge_frequency_completes_the_stage[chromium-Monthly]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Each charge frequency completes the stage [chromium-Monthly]", "type": "Functional", "status": "passed", "duration": 32.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-032", "nodeid": "admin/tests/test_service_pricing.py::test_each_charge_frequency_completes_the_stage[chromium-Quarterly]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Each charge frequency completes the stage [chromium-Quarterly]", "type": "Functional", "status": "passed", "duration": 45.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-033", "nodeid": "admin/tests/test_service_pricing.py::test_expiry_must_outlast_one_charge_cycle[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Expiry must outlast one charge cycle [chromium]", "type": "Negative", "status": "passed", "duration": 27.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-034", "nodeid": "admin/tests/test_service_pricing.py::test_fixed_mode_shows_flat_charges[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Fixed mode shows flat charges [chromium]", "type": "Functional", "status": "passed", "duration": 26.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-035", "nodeid": "admin/tests/test_service_pricing.py::test_only_vid_creation_is_fixed_only[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Only vid creation is fixed only [chromium]", "type": "Functional", "status": "passed", "duration": 39.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-036", "nodeid": "admin/tests/test_service_pricing.py::test_percentage_charges_are_accepted[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Percentage charges are accepted [chromium]", "type": "Functional", "status": "passed", "duration": 39.6, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-037", "nodeid": "admin/tests/test_service_pricing.py::test_percentage_mode_reveals_rate_with_min_and_max[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Percentage mode reveals rate with min and max [chromium]", "type": "Functional", "status": "passed", "duration": 22.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-038", "nodeid": "admin/tests/test_service_pricing.py::test_percentage_without_min_and_max_blocks_next[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Percentage without min and max blocks next [chromium]", "type": "Negative", "status": "passed", "duration": 38.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-039", "nodeid": "admin/tests/test_service_pricing.py::test_previous_returns_to_project_information_with_data_intact[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Previous returns to project information with data intact [chromium]", "type": "Functional", "status": "skipped", "duration": 39.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-040", "nodeid": "admin/tests/test_service_pricing.py::test_pricing_starts_incomplete[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Pricing starts incomplete [chromium]", "type": "Negative", "status": "passed", "duration": 28.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-041", "nodeid": "admin/tests/test_service_pricing.py::test_quarterly_shows_four_computed_quarters[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Quarterly shows four computed quarters [chromium]", "type": "Functional", "status": "passed", "duration": 46.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-042", "nodeid": "admin/tests/test_service_pricing.py::test_sections_follow_the_chosen_account_types[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Sections follow the chosen account types [chromium]", "type": "Functional", "status": "passed", "duration": 28.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-043", "nodeid": "admin/tests/test_service_pricing.py::test_switching_rate_type_swaps_the_inputs_both_ways[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Switching rate type swaps the inputs both ways [chromium]", "type": "Functional", "status": "skipped", "duration": 30.6, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-044", "nodeid": "admin/tests/test_service_pricing.py::test_typed_date_does_not_satisfy_the_datepicker[chromium]", "module": "Stage 2 - Service Pricing", "order": 2, "name": "Typed date does not satisfy the datepicker [chromium]", "type": "Negative", "status": "passed", "duration": 26.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-045", "nodeid": "admin/tests/test_document_upload.py::test_add_document_with_all_optional_dates[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Add document with all optional dates [chromium]", "type": "Functional", "status": "passed", "duration": 31.6, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-046", "nodeid": "admin/tests/test_document_upload.py::test_add_document_without_dates[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Add document without dates [chromium]", "type": "Functional", "status": "passed", "duration": 47.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-047", "nodeid": "admin/tests/test_document_upload.py::test_cancel_modal_adds_nothing[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Cancel modal adds nothing [chromium]", "type": "Functional", "status": "passed", "duration": 46.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-048", "nodeid": "admin/tests/test_document_upload.py::test_cancelling_a_delete_keeps_the_document[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Cancelling a delete keeps the document [chromium]", "type": "Functional", "status": "passed", "duration": 37.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-049", "nodeid": "admin/tests/test_document_upload.py::test_delete_document_removes_it[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Delete document removes it [chromium]", "type": "Functional", "status": "blocked", "duration": 40.4, "error": "playwright._impl._errors.TimeoutError: Timeout 30000ms exceeded.\n  waiting for locator(\"input[formcontrolname='excrow_id']\")\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Setup / Fixture Error", "retries": 0, "explain": {"headline": "The test waited for something on the page and it never appeared.", "meaning": "It was waiting for: locator(\"input[formcontrolname='excrow_id']\"). After the timeout it gave up. Either the element never rendered, or it rendered somewhere the test was not looking.", "causes": ["The page was slower than the timeout - UAT under load, or a slow API call.", "The app changed: the element was renamed, moved, or removed. The automation is now looking for something that no longer exists.", "An earlier step silently failed, so the app is on a different screen than the test thinks.", "A loading overlay or leftover dialog is covering the page and swallowing clicks."], "fixes": ["Open the failure screenshot for this test (reports/screenshots/) - it shows exactly what was on screen when the test gave up.", "Compare the screenshot to what you expect at this stage.", "If the screen looks correct, the element was probably renamed - that is a locator update for QA, not a product bug.", "If the screen looks wrong or empty, work backwards: the real failure happened earlier."], "owner": "test", "ownerTitle": "Likely a TEST / automation issue", "ownerNote": "The app may be fine - the automation probably looked in the wrong place or moved too fast. QA should look first.", "detail": []}}, {"tc_id": "TC-050", "nodeid": "admin/tests/test_document_upload.py::test_deleting_the_last_document_reblocks_next[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Deleting the last document reblocks next [chromium]", "type": "Functional", "status": "passed", "duration": 44.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-051", "nodeid": "admin/tests/test_document_upload.py::test_each_supported_format_is_accepted[chromium-jpg]", "module": "Stage 3 - Documents", "order": 3, "name": "Each supported format is accepted [chromium-jpg]", "type": "Functional", "status": "passed", "duration": 44.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-052", "nodeid": "admin/tests/test_document_upload.py::test_each_supported_format_is_accepted[chromium-pdf]", "module": "Stage 3 - Documents", "order": 3, "name": "Each supported format is accepted [chromium-pdf]", "type": "Functional", "status": "passed", "duration": 28.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-053", "nodeid": "admin/tests/test_document_upload.py::test_each_supported_format_is_accepted[chromium-png]", "module": "Stage 3 - Documents", "order": 3, "name": "Each supported format is accepted [chromium-png]", "type": "Functional", "status": "passed", "duration": 34.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-054", "nodeid": "admin/tests/test_document_upload.py::test_multiple_documents_accumulate[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Multiple documents accumulate [chromium]", "type": "Functional", "status": "passed", "duration": 34.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-055", "nodeid": "admin/tests/test_document_upload.py::test_oversize_file_is_rejected[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Oversize file is rejected [chromium]", "type": "Negative", "status": "xfailed", "duration": 38.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-056", "nodeid": "admin/tests/test_document_upload.py::test_save_requires_a_file[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Save requires a file [chromium]", "type": "Negative", "status": "passed", "duration": 35.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-057", "nodeid": "admin/tests/test_document_upload.py::test_save_requires_a_name[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Save requires a name [chromium]", "type": "Negative", "status": "passed", "duration": 44.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-058", "nodeid": "admin/tests/test_document_upload.py::test_stage_starts_empty[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Stage starts empty [chromium]", "type": "Functional", "status": "passed", "duration": 49.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-059", "nodeid": "admin/tests/test_document_upload.py::test_unsupported_file_type_is_rejected[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Unsupported file type is rejected [chromium]", "type": "Negative", "status": "xfailed", "duration": 47.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-060", "nodeid": "admin/tests/test_document_upload.py::test_zero_documents_blocks_progress[chromium]", "module": "Stage 3 - Documents", "order": 3, "name": "Zero documents blocks progress [chromium]", "type": "Negative", "status": "passed", "duration": 42.9, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-061", "nodeid": "admin/tests/test_review_submit.py::test_cancelling_the_confirmation_creates_nothing[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Cancelling the confirmation creates nothing [chromium]", "type": "Negative", "status": "passed", "duration": 28.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-062", "nodeid": "admin/tests/test_review_submit.py::test_confirmation_dialog_echoes_the_escrow_id[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Confirmation dialog echoes the escrow id [chromium]", "type": "Functional", "status": "passed", "duration": 33.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-063", "nodeid": "admin/tests/test_review_submit.py::test_edit_a_reviewed_value_and_carry_it_forward[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Edit a reviewed value and carry it forward [chromium]", "type": "Functional", "status": "passed", "duration": 40.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-064", "nodeid": "admin/tests/test_review_submit.py::test_every_review_section_offers_edit[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Every review section offers edit [chromium]", "type": "Functional", "status": "passed", "duration": 33.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-065", "nodeid": "admin/tests/test_review_submit.py::test_previous_returns_to_documents_with_them_intact[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Previous returns to documents with them intact [chromium]", "type": "Functional", "status": "passed", "duration": 44.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-066", "nodeid": "admin/tests/test_review_submit.py::test_review_is_not_reachable_with_an_incomplete_wizard[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Review is not reachable with an incomplete wizard [chromium]", "type": "Negative", "status": "passed", "duration": 24.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-067", "nodeid": "admin/tests/test_review_submit.py::test_review_lists_the_uploaded_documents[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Review lists the uploaded documents [chromium]", "type": "Functional", "status": "passed", "duration": 33.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-068", "nodeid": "admin/tests/test_review_submit.py::test_review_shows_what_was_entered[chromium]", "module": "Stage 4 - Review & Submit", "order": 4, "name": "Review shows what was entered [chromium]", "type": "Functional", "status": "passed", "duration": 26.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-069", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_end_to_end[chromium]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow end to end [chromium]", "type": "End-to-End", "status": "passed", "duration": 134.0, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-070", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-Payout+UPI+VID]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-Payout+UPI+VID]", "type": "Creates Data", "status": "failed", "duration": 139.3, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 1, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-071", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-Payout+UPI]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-Payout+UPI]", "type": "Creates Data", "status": "passed", "duration": 128.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-072", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-Payout+VID]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-Payout+VID]", "type": "Creates Data", "status": "failed", "duration": 81.7, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 0, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-073", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-Payout]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-Payout]", "type": "Creates Data", "status": "passed", "duration": 97.8, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-074", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-UPI+VID]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-UPI+VID]", "type": "Creates Data", "status": "passed", "duration": 103.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-075", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-UPI]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-UPI]", "type": "Creates Data", "status": "passed", "duration": 138.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-076", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_account_type[chromium-VID]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per account type [chromium-VID]", "type": "Creates Data", "status": "passed", "duration": 139.3, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-077", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Annually-Fixed]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Annually-Fixed]", "type": "Creates Data", "status": "passed", "duration": 130.2, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-078", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Annually-Percentage]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Annually-Percentage]", "type": "Creates Data", "status": "passed", "duration": 88.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-079", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Monthly-Fixed]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Monthly-Fixed]", "type": "Creates Data", "status": "passed", "duration": 136.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-080", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Monthly-Percentage]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Monthly-Percentage]", "type": "Creates Data", "status": "failed", "duration": 72.7, "error": "AssertionError: 'Next' stayed disabled; still-invalid controls: ['group:maintenance_charges']\n  [PLACEHOLDER TEXT - this is a layout preview, not a real failure]", "error_category": "Assertion Failure", "retries": 0, "explain": {"headline": "The wizard would not let the test move to the next stage - the 'Next' button stayed greyed out.", "meaning": "The test had filled everything it believes is required, so 'Next' should have become clickable. The app disagreed. Note the app never shows an error message here; it only greys out the button, which is why the test has to report the field names itself.", "causes": ["The Expiry Date is not far enough after the Date of Deduction. The app requires the escrow to outlast at least one full charge cycle - 1 month for Monthly, 3 for Quarterly, 12 for Annually.", "The charge frequency was changed *after* the dates were picked. That silently invalidates both dates while still showing the old text on screen, so the form looks complete but is not.", "A required field really is empty or holds a value the app rejects.", "A date was typed instead of picked from the calendar. Typing fills the box but leaves the field invalid.", "The app added a new required field that the automation does not fill yet (a product change, not a bug)."], "fixes": ["Open the app and repeat the same steps by hand up to this stage.", "Check each field listed above - is it empty, or does it show a red message underneath?", "If it is the maintenance charges section: re-pick the Date of Deduction and Expiry Date *after* setting the frequency, and make sure the expiry is at least one full cycle later.", "If the field looks correctly filled on screen but is still reported invalid, that is a product bug - the app's validation is rejecting a valid value."], "owner": "product", "ownerTitle": "Likely a PRODUCT bug", "ownerNote": "The app behaved differently than the business rules say it should. A developer should look first.", "detail": ["the whole Bank & TSP maintenance charges section  (group:maintenance_charges)"]}}, {"tc_id": "TC-081", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Quarterly-Fixed]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Quarterly-Fixed]", "type": "Creates Data", "status": "passed", "duration": 144.7, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-082", "nodeid": "admin/tests/test_create_escrow.py::test_create_escrow_per_pricing_model[chromium-Quarterly-Percentage]", "module": "End-to-End Creation", "order": 5, "name": "Create escrow per pricing model [chromium-Quarterly-Percentage]", "type": "Creates Data", "status": "passed", "duration": 137.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-083", "nodeid": "admin/tests/test_create_escrow.py::test_created_escrow_is_listed_on_the_dashboard[chromium]", "module": "End-to-End Creation", "order": 5, "name": "Created escrow is listed on the dashboard [chromium]", "type": "End-to-End", "status": "passed", "duration": 136.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-084", "nodeid": "admin/tests/test_create_escrow.py::test_generated_escrow_ids_are_unique_per_form[chromium]", "module": "End-to-End Creation", "order": 5, "name": "Generated escrow ids are unique per form [chromium]", "type": "Functional", "status": "passed", "duration": 37.4, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-085", "nodeid": "admin/tests/test_create_escrow.py::test_random_payloads_are_unique_per_instance", "module": "End-to-End Creation", "order": 5, "name": "Random payloads are unique per instance", "type": "Functional", "status": "passed", "duration": 48.5, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-086", "nodeid": "partner/tests/test_login.py::test_partner_login[chromium]", "module": "Partner - Login", "order": 6, "name": "Partner login [chromium]", "type": "Smoke", "status": "passed", "duration": 41.1, "error": "", "error_category": "", "retries": 0, "explain": {}}, {"tc_id": "TC-087", "nodeid": "partner/tests/test_verify_escrow.py::test_search_and_verify_escrow[chromium]", "module": "Partner - Verify Escrow", "order": 7, "name": "Search and verify escrow [chromium]", "type": "End-to-End", "status": "passed", "duration": 53.5, "error": "", "error_category": "", "retries": 0, "explain": {}}]};
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const C = {passed:"var(--pass)",failed:"var(--fail)",skipped:"var(--skip)",blocked:"var(--blocked)",
+           xfailed:"var(--xfail)",xpassed:"var(--xfail)",not_run:"var(--xfail)"};
+const ICON = {passed:"✓",failed:"✕",skipped:"⏭",blocked:"⊘",xfailed:"~",xpassed:"!",not_run:"·"};
+const LABEL= {passed:"PASS",failed:"FAIL",skipped:"SKIP",blocked:"BLOCKED",
+              xfailed:"XFAIL",xpassed:"XPASS",not_run:"NOT RUN"};
+const dur = s => s<1 ? Math.round(s*1000)+"ms"
+                : s<60 ? (s<10?s.toFixed(1):Math.round(s))+"s"
+                : Math.floor(s/60)+"m "+String(Math.round(s%60)).padStart(2,"0")+"s";
+
+/* ---------- header ---------- */
+const M = D.meta;
+specName.textContent = M.suite;
+chips.innerHTML = [["Module",M.module_label],["Browser",M.browser],["Env",M.env],["By",M.by]]
+  .map(([k,v])=>`<span class="chip"><b>${esc(k)}</b>${esc(v)}</span>`).join("");
+metaBox.innerHTML = [["Started",M.started],["Ended",M.ended],
+  ["Duration",`<span class="hl">${dur(M.duration_s)}</span>`],["Generated",M.generated]]
+  .map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join("");
+
+/* ---------- banners ---------- */
+const bn=[];
+if(M.demo) bn.push(`<div class="banner warn"><span>⚠</span><div><b>LAYOUT PREVIEW - SAMPLE DATA. This is NOT a real test run.</b><br>
+  Test names, IDs and module structure are the suite's genuine 87 tests, but every status, duration and error is placeholder
+  content generated to show the layout populated. Do not quote any number on this page. The real report is
+  <code>reports/dashboard.html</code>, written by an actual pytest run.</div></div>`);
+if(M.note) bn.push(`<div class="banner info"><span>ℹ</span><div>${M.note}</div></div>`);
+banners.innerHTML = bn.join("");
+
+/* ---------- tiles ---------- */
+const c=D.counts, rate=D.passRate;
+const rateColor = D.executed===0 ? "var(--xfail)" : rate>=90?"var(--pass)":rate>=60?"var(--skip)":"var(--fail)";
+const TILES=[
+  ["📋",D.total,"Total Tests","var(--info)"],
+  ["✓",c.passed,"Passed","var(--pass)"],
+  ["✕",c.failed,"Failed","var(--fail)"],
+  ["⏭",c.skipped,"Skipped","var(--skip)"],
+  ["▦",(D.executed?rate.toFixed(1)+"%":"n/a"),"Pass Rate",rateColor],
+  ["◷",dur(M.duration_s),"Duration","var(--time)"],
+  ["🗀",D.modules.length,"Modules","var(--mod)"],
+  ["⊘",c.blocked+c.not_run,"Blocked","var(--blocked)"],
+];
+tiles.innerHTML = TILES.map(([i,v,l,col])=>
+ `<div class="tile" style="--c:${col}"><div class="ic">${i}</div>
+   <div><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div></div>`).join("");
+
+/* ---------- tooltip ---------- */
+const tip=document.getElementById("tip");
+function bindTip(el,title,rows){
+  const show=e=>{tip.innerHTML=`<div class="t">${title}</div>`+
+      rows.map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}</b></div>`).join("");
+    tip.style.opacity=1;move(e);};
+  const move=e=>{const p=e.touches?e.touches[0]:e, w=tip.offsetWidth,h=tip.offsetHeight;
+    tip.style.left=Math.min(p.clientX+14,innerWidth-w-10)+"px";
+    tip.style.top=Math.max(8,p.clientY-h-12)+"px";};
+  el.addEventListener("mouseenter",show); el.addEventListener("mousemove",move);
+  el.addEventListener("mouseleave",()=>tip.style.opacity=0);
+  el.addEventListener("focus",e=>{const r=el.getBoundingClientRect();
+    show({clientX:r.left+r.width/2,clientY:r.top});});
+  el.addEventListener("blur",()=>tip.style.opacity=0);
+  el.setAttribute("tabindex","0");
+}
+
+/* ---------- donut (or hero, when a pie would be degenerate) ---------- */
+(function(){
+  const segs=["passed","failed","skipped","blocked","xfailed","xpassed","not_run"]
+    .map(k=>({k,v:c[k]||0})).filter(s=>s.v>0);
+  const total=segs.reduce((a,s)=>a+s.v,0);
+  if(!total){donut.innerHTML='<div class="empty">No tests were executed.</div>';return;}
+  // A 1-slice pie is not a chart - show the number instead.
+  if(segs.length===1){
+    const s=segs[0];
+    donut.innerHTML=`<div class="hero"><div class="n" style="color:${C[s.k]}">${s.v}</div>
+      <div class="c">${ICON[s.k]} ${LABEL[s.k]} — all ${total} test${total>1?"s":""}</div></div>`;
+    return;
+  }
+  const R=64,r=43,cx=92,cy=86;let a0=-Math.PI/2,paths="";
+  segs.forEach(s=>{
+    const a1=a0+2*Math.PI*s.v/total, big=(a1-a0)>Math.PI?1:0, gap=0.014;
+    const b0=a0+gap,b1=Math.max(b0+0.001,a1-gap);
+    const p=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)];
+    const [x1,y1]=p(R,b0),[x2,y2]=p(R,b1),[x3,y3]=p(r,b1),[x4,y4]=p(r,b0);
+    paths+=`<path class="mark" data-status="${s.k}" data-i="${s.k}" fill="${C[s.k]}"
+      d="M${x1},${y1} A${R},${R} 0 ${big} 1 ${x2},${y2} L${x3},${y3} A${r},${r} 0 ${big} 0 ${x4},${y4} Z"/>`;
+    a0=a1;});
+  const headline = D.executed? D.passRate.toFixed(1)+"%" : "—";
+  donut.innerHTML=`<svg viewBox="0 0 184 172" style="margin:0 auto;max-width:230px" role="img"
+      aria-label="Result distribution: ${segs.map(s=>LABEL[s.k]+" "+s.v).join(", ")}">
+    ${paths}<text x="${cx}" y="${cy-1}" text-anchor="middle" fill="var(--ink)"
+      style="font-size:21px;font-weight:700">${headline}</text>
+    <text x="${cx}" y="${cy+15}" text-anchor="middle" class="tick">Pass Rate</text></svg>
+   <div class="legend">${segs.map(s=>
+      `<span><i style="background:${C[s.k]}"></i>${ICON[s.k]} ${LABEL[s.k]} (${s.v})</span>`).join("")}</div>`;
+  donut.querySelectorAll("path.mark").forEach(p=>{
+    const s=segs.find(x=>x.k===p.dataset.i);
+    bindTip(p,`${ICON[s.k]} ${LABEL[s.k]}`,[["Tests",s.v],["Share",(100*s.v/total).toFixed(1)+"%"]]);});
+})();
+
+/* ---------- module-wise grouped bars ---------- */
+(function(){
+  const mods=D.modules; if(!mods.length){bars.innerHTML='<div class="empty">No modules.</div>';return;}
+  const keys=["passed","failed","skipped","blocked","not_run"].filter(k=>mods.some(m=>m[k]>0));
+  const W=Math.max(340,mods.length*Math.max(78,keys.length*26)),H=210,L=34,B=52,T=12;
+  const max=Math.max(1,...mods.map(m=>Math.max(...keys.map(k=>m[k]))));
+  const pw=(W-L-8)/mods.length, bw=Math.min(20,(pw-14)/keys.length);
+  let g="",bs="";
+  const ticks=max<=2?[0,1,2]:[0,Math.round(max/2),max];
+  [...new Set(ticks)].forEach(t=>{const y=T+(H-T-B)*(1-t/max);
+    g+=`<line class="grid" x1="${L}" y1="${y}" x2="${W-6}" y2="${y}"/>
+        <text class="tick" x="${L-7}" y="${y+4}" text-anchor="end">${t}</text>`;});
+  mods.forEach((m,i)=>{
+    const x0=L+i*pw+(pw-bw*keys.length-2*(keys.length-1))/2;
+    keys.forEach((k,j)=>{
+      const v=m[k]||0, h=(H-T-B)*v/max, x=x0+j*(bw+2), y=T+(H-T-B)-h;
+      if(v>0) bs+=`<rect class="mark" data-status="${k}" data-m="${i}" data-k="${k}"
+          x="${x}" y="${y}" width="${bw}" height="${Math.max(2,h)}" rx="4" fill="${C[k]}"/>
+        <text class="vlab" x="${x+bw/2}" y="${y-5}" text-anchor="middle">${v}</text>`;});
+    const label=m.name.length>17?m.name.slice(0,16)+"…":m.name;
+    bs+=`<text class="tick" x="${L+i*pw+pw/2}" y="${H-B+18}" text-anchor="middle">${esc(label)}</text>
+         <text class="tick" x="${L+i*pw+pw/2}" y="${H-B+32}" text-anchor="middle"
+           style="fill:var(--ink-2)">${m.total}</text>`;});
+  bars.innerHTML=`<svg class="wide" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"
+      aria-label="Results per module">${g}
+    <line class="axis" x1="${L}" y1="${T+(H-T-B)}" x2="${W-6}" y2="${T+(H-T-B)}"/>${bs}</svg>
+   <div class="legend">${keys.map(k=>
+      `<span><i style="background:${C[k]}"></i>${ICON[k]} ${LABEL[k]}</span>`).join("")}</div>`;
+  bars.querySelectorAll("rect.mark").forEach(rc=>{
+    const m=mods[+rc.dataset.m],k=rc.dataset.k;
+    bindTip(rc,esc(m.name),[[`${ICON[k]} ${LABEL[k]}`,m[k]],["Module total",m.total],
+                            ["Module time",dur(m.duration)]]);});
+})();
+
+/* ---------- failure categories: one series, one colour ---------- */
+(function(){
+  const f=D.failureCategories;
+  if(!f.length){cats.innerHTML='<div class="empty">✓ No failures recorded.</div>';return;}
+  const max=Math.max(...f.map(x=>x[1])),rowH=34,L=132,W=420,H=f.length*rowH+16;
+  let b="";
+  f.forEach(([name,n],i)=>{
+    const y=i*rowH+8,w=Math.max(3,(W-L-46)*n/max);
+    const label=name.length>19?name.slice(0,18)+"…":name;
+    b+=`<text class="tick" x="${L-9}" y="${y+17}" text-anchor="end" style="fill:var(--ink-2)">${esc(label)}</text>
+      <rect class="mark" data-status="failed" data-i="${i}" x="${L}" y="${y+3}" width="${w}"
+        height="19" rx="4" fill="var(--fail)"/>
+      <text class="vlab" x="${L+w+8}" y="${y+17}">${n}</text>`;});
+  cats.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" role="img"
+      aria-label="Failures by category">${b}</svg>`;
+  const tot=f.reduce((a,x)=>a+x[1],0);
+  cats.querySelectorAll("rect.mark").forEach(rc=>{
+    const [n,v]=f[+rc.dataset.i];
+    bindTip(rc,esc(n),[["Failures",v],["Share of failures",(100*v/tot).toFixed(0)+"%"]]);});
+})();
+
+/* ---------- filters, sort, list ---------- */
+const T=D.tests;
+const uniq=(k)=>[...new Set(T.map(t=>t[k]))].sort();
+uniq("status").forEach(s=>fStatus.insertAdjacentHTML("beforeend",`<option value="${s}">${LABEL[s]||s}</option>`));
+D.modules.forEach(m=>fModule.insertAdjacentHTML("beforeend",`<option value="${esc(m.name)}">${esc(m.name)}</option>`));
+uniq("type").forEach(s=>fType.insertAdjacentHTML("beforeend",`<option value="${esc(s)}">${esc(s)}</option>`));
+let sortKey="module";
+
+function current(){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  let rows=T.filter(t=>
+    (!q || (t.name+" "+t.tc_id+" "+t.module+" "+t.nodeid).toLowerCase().includes(q)) &&
+    (!fStatus.value||t.status===fStatus.value) &&
+    (!fModule.value||t.module===fModule.value) &&
+    (!fType.value  ||t.type===fType.value));
+  const rank={failed:0,blocked:1,skipped:2,not_run:3,xpassed:4,xfailed:5,passed:6};
+  if(sortKey==="status")   rows.sort((a,b)=>(rank[a.status]??9)-(rank[b.status]??9));
+  if(sortKey==="duration") rows.sort((a,b)=>b.duration-a.duration);
+  if(sortKey==="name")     rows.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sortKey==="module")   rows.sort((a,b)=>a.order-b.order||a.tc_id.localeCompare(b.tc_id));
+  return rows;
+}
+function whyHTML(t){
+  const x=t.explain;
+  if(!x||!x.headline) return t.error?`<pre class="err" style="flex:1 1 100%">${esc(t.error)}</pre>`:"";
+  const list=(arr,tag)=>`<${tag}>${arr.map(i=>`<li>${esc(i)}</li>`).join("")}</${tag}>`;
+  return `<div class="why">
+    <div class="why-hd">
+      <span class="own ${x.owner}">${esc(x.ownerTitle)}</span>
+      <span class="own-note">${esc(x.ownerNote)}</span>
+    </div>
+    <div class="why-bd">
+      <h4>What happened</h4><p class="lead">${esc(x.headline)}</p>
+      <h4>What this means</h4><p>${esc(x.meaning)}</p>
+      ${x.detail&&x.detail.length?`<h4>The app flagged these as still invalid</h4>
+        ${list(x.detail,"ul").replace('<ul>','<ul class="fields">')}`:""}
+      <h4>Most likely causes — check in this order</h4>${list(x.causes,"ol")}
+      <h4>How to check &amp; fix</h4>${list(x.fixes,"ol")}
+      <details><summary>Show the raw error the test produced</summary>
+        <pre class="err">${esc(t.error)}</pre></details>
+    </div></div>`;
+}
+function rowHTML(t){
+  return `<div class="row">
+    <span class="tcid">${esc(t.tc_id)}</span>
+    <span class="tname">${esc(t.name)}</span>
+    ${t.retries?`<span class="tag" title="Retries">↻${t.retries}</span>`:""}
+    <span class="tag">${esc(t.type)}</span>
+    <span class="dur">${dur(t.duration)}</span>
+    <span class="st ${t.status}">${ICON[t.status]} ${LABEL[t.status]||t.status}</span>
+    ${whyHTML(t)}</div>`;
+}
+function draw(){
+  const rows=current();
+  count.textContent=`Showing ${rows.length} of ${T.length} tests`;
+  const groups=new Map();
+  rows.forEach(t=>{(groups.get(t.module)||groups.set(t.module,[]).get(t.module)).push(t);});
+  list.innerHTML=[...groups.entries()].map(([name,items])=>{
+    const p=items.filter(t=>t.status==="passed").length;
+    const f=items.filter(t=>t.status==="failed").length;
+    const ex=items.filter(t=>["passed","failed","xfailed","xpassed"].includes(t.status)).length;
+    const d=items.reduce((a,t)=>a+t.duration,0);
+    return `<details class="grp" ${f?"open":""} style="--gc:${f?"var(--fail)":p?"var(--pass)":"var(--xfail)"}">
+      <summary><span class="gname">${esc(name)}</span><div class="badges">
+        <span class="b">${items.length} Tests</span>
+        <span class="b p">${p} Pass</span>
+        <span class="b f">${f} Fail</span>
+        <span class="b">${ex?Math.round(100*p/ex):0}%</span>
+        <span class="b">${dur(d)}</span></div></summary>
+      ${items.map(rowHTML).join("")}</details>`;}).join("")
+    || `<div class="panel"><div class="empty">No tests match these filters.</div></div>`;
+  tableview.innerHTML=`<table><caption class="empty" style="padding:8px 0;text-align:left">
+      Table view — every value on this page, without relying on colour.</caption>
+    <thead><tr><th>ID</th><th>Module</th><th>Test</th><th>Type</th><th>Status</th><th>Duration</th></tr></thead>
+    <tbody>${rows.map(t=>`<tr><td>${esc(t.tc_id)}</td><td>${esc(t.module)}</td><td>${esc(t.name)}</td>
+      <td>${esc(t.type)}</td><td>${ICON[t.status]} ${LABEL[t.status]||t.status}</td>
+      <td>${dur(t.duration)}</td></tr>`).join("")}</tbody></table>`;
+}
+["q","fStatus","fModule","fType"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener(id==="q"?"input":"change",draw);});
+reset.onclick=()=>{q.value="";fStatus.value="";fModule.value="";fType.value="";draw();};
+toggleTable.onclick=()=>{const on=tableview.hasAttribute("hidden");
+  tableview.toggleAttribute("hidden",!on);list.toggleAttribute("hidden",on);
+  toggleTable.setAttribute("aria-pressed",String(on));};
+document.querySelectorAll(".sb").forEach(b=>b.onclick=()=>{
+  sortKey=b.dataset.sort;
+  document.querySelectorAll(".sb").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  draw();});
+draw();
+foot.innerHTML = `${D.total} tests · ${D.modules.length} modules · generated ${esc(M.generated)}`
+  + `<br>SprintNXT Escrow automation — reports/dashboard.html`;
+</script></body></html>

@@ -1,0 +1,31 @@
+# Pinned to the versions this suite is actually verified against.
+#
+# The previous pins (playwright 1.49.0, pytest 8.3.4, pytest-playwright 0.6.2,
+# pytest-html 4.1.1, pytest-xdist 3.6.1, python-dotenv 1.0.1) matched NOTHING
+# that was installed, so the suite had never run against its own declared
+# environment. These are the versions confirmed working on 05-Aug-2026.
+#
+# Verify before a run:  pip install -r requirements.txt && playwright install
+playwright==1.58.0
+pytest==9.0.2
+pytest-playwright==0.7.2
+pytest-html==4.2.0
+python-dotenv==1.1.1
+
+# Global per-test timeout (--timeout in pytest.ini) so a hung UAT fails
+# instead of blocking the run. Was installed but undeclared and unconfigured.
+pytest-timeout==2.4.0
+
+# Used by core.file_factory to generate a real JPEG fixture. Was relied on
+# opportunistically but undeclared, so the fixture differed between machines.
+Pillow==12.1.1
+
+# NOTE: pytest-xdist is deliberately NOT pinned here.
+# The suite is not parallel-safe: the shared JSON handover in
+# core/artifact_store.py loses writes under concurrency (measured: 3 of 8
+# values survived), fixture files are written non-atomically, all workers
+# share one UAT account, and the dashboard "newest record is on page 1"
+# assumption breaks. Declaring xdist invited an unsafe `-n auto` that appears
+# to work while silently skipping the end-to-end chain.
+# Re-add it only once those four issues are fixed.
+# pytest-xdist==3.8.0

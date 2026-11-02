@@ -1,0 +1,130 @@
+{
+  "summary": {
+    "PASS": 8,
+    "FAIL": 0,
+    "BLOCKED": 11,
+    "INFO": 0
+  },
+  "started": "2026-08-17 11:49:35",
+  "escrow_id": "",
+  "representative": "anand.kumar+new2849@paysprint.in",
+  "company": "QAOAWSR Ltd",
+  "temp_password_seen": false,
+  "new_password": "",
+  "cases": [
+    {
+      "id": "TC-A-01",
+      "title": "Super Admin signs in",
+      "status": "PASS",
+      "evidence": "https://uat.sprintnxt.in/NexGenAdminFront/#/dashboard"
+    },
+    {
+      "id": "TC-A-02-dry",
+      "title": "Wizard accepts an unregistered representative (stage 1, not submitted)",
+      "status": "PASS",
+      "evidence": "reserved EXC-0826-287226"
+    },
+    {
+      "id": "TC-A-04",
+      "title": "Representative fields stay editable after 'User not found!'",
+      "status": "PASS",
+      "evidence": "company='QAOAWSR Ltd'"
+    },
+    {
+      "id": "TC-A-05",
+      "title": "Stage 1 is complete - 'Next' enables",
+      "status": "PASS",
+      "evidence": "[]"
+    },
+    {
+      "id": "TC-A-03",
+      "title": "New Escrow appears on the admin dashboard",
+      "status": "BLOCKED",
+      "evidence": "dry run - nothing submitted"
+    },
+    {
+      "id": "TC-N-01",
+      "title": "Confirmation email received",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-02",
+      "title": "Email carries User ID + temporary password",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-03",
+      "title": "Escrow ID in the email matches the portal",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-04",
+      "title": "Partner link points at the partner portal",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-05",
+      "title": "First sign-in with the emailed credentials",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-06",
+      "title": "Password change is forced",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-07",
+      "title": "Password policy is enforced",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-08",
+      "title": "Password change succeeds",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-09",
+      "title": "New password authenticates",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-N-10",
+      "title": "Temporary password no longer works",
+      "status": "BLOCKED",
+      "evidence": "dry run - no escrow submitted, no mail sent"
+    },
+    {
+      "id": "TC-SEC-01 [#/dashboard]",
+      "title": "Redirects to login when signed out",
+      "status": "PASS",
+      "evidence": "https://excrow-uat.sprintnxt.in/EXcrowPartnerFrontV2/#/auth/login"
+    },
+    {
+      "id": "TC-SEC-01 [#/escrow-management]",
+      "title": "Redirects to login when signed out",
+      "status": "PASS",
+      "evidence": "https://excrow-uat.sprintnxt.in/EXcrowPartnerFrontV2/#/auth/login"
+    },
+    {
+      "id": "TC-SEC-01 [#/profile]",
+      "title": "Redirects to login when signed out",
+      "status": "PASS",
+      "evidence": "https://excrow-uat.sprintnxt.in/EXcrowPartnerFrontV2/#/auth/login"
+    },
+    {
+      "id": "TC-SEC-01 [#/auth/set-password]",
+      "title": "Redirects to login when signed out",
+      "status": "PASS",
+      "evidence": "https://excrow-uat.sprintnxt.in/EXcrowPartnerFrontV2/#/auth/login"
+    }
+  ]
+}

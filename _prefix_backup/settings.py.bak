@@ -1,0 +1,48 @@
+"""Central configuration.
+
+Reads from environment (optionally a local `.env`) with the UAT defaults
+baked in as fallbacks so the suite runs out of the box. Import `settings`
+everywhere; never hard-code URLs/credentials in page objects or tests.
+"""
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+from dotenv import load_dotenv
+
+load_dotenv()  # picks up ./.env if present; no-op otherwise
+
+
+def _get(key: str, default: str = "") -> str:
+    return os.getenv(key, default)
+
+
+@dataclass(frozen=True)
+class Settings:
+    # --- Super Admin portal ---
+    admin_base_url: str = _get(
+        "ADMIN_BASE_URL",
+        "https://uat.sprintnxt.in/NexGenAdminFront/#/auth/login",
+    )
+    admin_username: str = _get("ADMIN_USERNAME", "superadmin@gmail.com")
+    admin_password: str = _get("ADMIN_PASSWORD", "Raman@321")
+    admin_pin: str = _get("ADMIN_PIN", "1234")
+
+    # --- Partner portal ---
+    partner_base_url: str = _get(
+        "PARTNER_BASE_URL",
+        "https://excrow-uat.sprintnxt.in/EXcrowPartnerFrontV2/#/auth/login",
+    )
+    partner_username: str = _get("PARTNER_USERNAME", "anand.kumar@paysprint.in")
+    partner_password: str = _get("PARTNER_PASSWORD", "Anand@12")
+
+    # --- Company Representative (admin Step 4 auto-fill email) ---
+    representative_email: str = _get("REPRESENTATIVE_EMAIL", "anand.kumar@paysprint.in")
+
+    # --- Runtime ---
+    default_timeout_ms: int = int(_get("DEFAULT_TIMEOUT_MS", "30000"))
+    headless: bool = _get("HEADLESS", "true").lower() == "true"
+
+
+settings = Settings()
